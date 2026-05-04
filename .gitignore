@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.env
+.env.local
+*.local
+
+# Private signing key for the stable extension ID. The *public* half lives in
+# manifest.json ("key"); this file must never be committed or shipped.
+.keys/
+
+# Generated from content/ by scripts/seed.ts --emit
+extension/src/generated/challenges.json
+
+.DS_Store
