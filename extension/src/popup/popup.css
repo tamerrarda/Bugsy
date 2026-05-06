@@ -1,0 +1,1539 @@
+/* Bugsy — the garden.
+ *
+ * A deliberate departure from the dark developer theme the spec asked for (§6.2).
+ * Bugsy is a ladybug in a garden; a black IDE panel was never his home.
+ *
+ * The code block is warm paper too. Solarized Light's background is #fdf6e3 — the
+ * same cream the cards are cut from — so the snippet sits IN the world rather than
+ * on top of it. That was the one thing worth getting right: a player spends sixty
+ * seconds staring at that block, and it is the product.
+ */
+
+@font-face {
+  font-family: 'Baloo';
+  src: url('/fonts/baloo2.woff2') format('woff2');
+  font-weight: 800;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Nunito';
+  src: url('/fonts/nunito.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Nunito';
+  src: url('/fonts/nunito-800.woff2') format('woff2');
+  font-weight: 800;
+  font-display: swap;
+}
+
+:root {
+  /* Warm ink. Nothing in a garden is pure black. */
+  --ink: #5a3d24;
+  --ink-soft: #9b7d5e;
+
+  /* Paper */
+  --cream: #fbf1dc;
+  --cream-deep: #f3e5c8;
+  --card: #fdf7e8;
+  --card-line: #e3cfa8;
+
+  /* Bugsy's shell */
+  --orange: #f2853c;
+  --orange-deep: #e0682a;
+
+  /* Grass */
+  --green-deep: #86b73f;
+  --green-ink: #4e7a1f;
+  --green-wash: #eaf5d5;
+
+  --gold: #f4c445;
+
+  --right: #6fae3a;
+  --right-wash: #e7f4d4;
+  --wrong: #e2603f;
+  --wrong-wash: #fbe3da;
+
+  --mono: 'SF Mono', 'JetBrains Mono', Menlo, Consolas, monospace;
+  --sans: 'Nunito', system-ui, -apple-system, sans-serif;
+  --display: 'Baloo', 'Nunito', system-ui, sans-serif;
+
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  width: 400px;
+  height: 600px;
+  overflow: hidden;
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 700;
+  -webkit-font-smoothing: antialiased;
+
+  /* The garden. The gradient underneath shares its sky-to-grass ramp, so a
+     missing image degrades to something still warm rather than a white void. */
+  background: linear-gradient(180deg, #f3f2d9 0%, #e8f0c4 45%, #cbe49b 100%);
+}
+
+.garden {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image: url('/bg/garden.webp');
+  background-size: cover;
+  background-position: center bottom;
+}
+
+/* ---------- shell ---------- */
+
+.shell {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  height: 600px;
+  padding: 12px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139, 94, 60, 0.35) transparent;
+}
+
+.shell::-webkit-scrollbar {
+  width: 7px;
+}
+.shell::-webkit-scrollbar-thumb {
+  border-radius: 8px;
+  background: rgba(139, 94, 60, 0.3);
+}
+
+.center {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  text-align: center;
+}
+
+.muted {
+  color: var(--ink-soft);
+}
+
+/* ---------- home ---------- */
+
+.home {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+}
+
+.home__crest {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.home__crest img {
+  filter: drop-shadow(0 6px 10px rgba(93, 63, 36, 0.3));
+}
+
+/* The wooden sign the wordmark is carved into. */
+.home__sign {
+  margin-top: -12px;
+  padding: 7px 32px 9px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #a06a41 0%, #82532f 55%, #6d472c 100%);
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -3px 0 rgba(0, 0, 0, 0.18),
+    0 6px 14px rgba(93, 63, 36, 0.32);
+}
+
+.home__title {
+  margin: 0;
+  color: #ffd9a0;
+  font-family: var(--display);
+  font-size: 33px;
+  font-weight: 800;
+  line-height: 1;
+  text-shadow: 0 2px 0 #b8622a, 0 4px 0 rgba(0, 0, 0, 0.22);
+}
+
+.home__tagline {
+  margin: 0;
+  width: 100%;
+  padding: 8px 12px;
+  border: 2px dashed var(--card-line);
+  border-radius: 12px;
+  background: var(--card);
+  font-size: 12.5px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+/* ---------- stat tiles ---------- */
+
+.home__stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  width: 100%;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: 7px 4px 6px;
+  border: 2px dashed var(--card-line);
+  border-radius: 13px;
+  background: var(--card);
+}
+
+.stat__row {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.stat__icon {
+  font-size: 17px;
+  line-height: 1;
+}
+
+.stat__value {
+  font-family: var(--display);
+  font-size: 21px;
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat__label {
+  color: var(--ink-soft);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+/* ---------- buttons ---------- */
+
+.btn {
+  position: relative;
+  padding: 12px 16px;
+  border: 0;
+  border-radius: 999px;
+  color: #fff;
+  font-family: var(--display);
+  font-size: 17px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.08s ease, filter 0.12s ease;
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(2px);
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  filter: grayscale(0.4);
+  opacity: 0.6;
+}
+
+.btn--block {
+  width: 100%;
+}
+
+/* The whole aesthetic lives in two shadows: a highlight along the top edge and a
+   solid lip along the bottom. That is what makes a button look pressable. */
+.btn--primary {
+  background: linear-gradient(180deg, #f79b52 0%, #f0803a 48%, #e0682a 100%);
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.5),
+    0 4px 0 #b9541d,
+    0 8px 14px rgba(242, 133, 60, 0.28);
+}
+
+.btn--primary:active:not(:disabled) {
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.4), 0 2px 0 #b9541d;
+}
+
+.btn--practice {
+  background: linear-gradient(180deg, #bcdd77 0%, #a5cf58 48%, #8dbd41 100%);
+  color: #3f6317;
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.55),
+    0 4px 0 #6f9c31,
+    0 8px 14px rgba(141, 189, 65, 0.28);
+}
+
+.btn--practice:active:not(:disabled) {
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.45), 0 2px 0 #6f9c31;
+}
+
+.btn--ghost {
+  border: 2px solid var(--card-line);
+  background: var(--card);
+  color: var(--ink-soft);
+  font-size: 13px;
+  box-shadow: 0 3px 0 rgba(139, 94, 60, 0.16);
+}
+
+.btn--ghost:hover:not(:disabled) {
+  color: var(--ink);
+}
+
+.btn--github {
+  background: linear-gradient(180deg, #5a4632 0%, #47372a 100%);
+  color: #ffeccb;
+  font-size: 15px;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.18), 0 4px 0 #2f241b;
+}
+
+.btn__leaf {
+  position: absolute;
+  top: 50%;
+  left: 16px;
+  transform: translateY(-50%);
+  font-size: 17px;
+}
+
+.btn__arrow {
+  position: absolute;
+  top: 50%;
+  right: 16px;
+  transform: translateY(-50%);
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+/* ---------- chips ---------- */
+
+.filters {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  align-items: center;
+  width: 100%;
+}
+
+.chips {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  justify-content: center;
+}
+
+.chips--wrap {
+  flex-wrap: wrap;
+  row-gap: 5px;
+}
+
+.chip {
+  padding: 5px 11px;
+  border: 2px solid var(--card-line);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--ink-soft);
+  font-family: var(--sans);
+  font-size: 11.5px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.08s ease;
+}
+
+.chip--button:hover {
+  color: var(--ink);
+}
+.chip--button:active {
+  transform: translateY(1px);
+}
+
+.chip--active {
+  border-color: transparent;
+  background: linear-gradient(180deg, #f79b52 0%, #ea7734 100%);
+  color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 2px 0 #c25a20;
+}
+
+.chip--d1 {
+  color: var(--green-ink);
+}
+.chip--d2 {
+  color: #b8860b;
+}
+.chip--d3 {
+  color: var(--wrong);
+}
+.chip--progress {
+  color: var(--orange-deep);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- nav tiles ---------- */
+
+.home__nav {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  width: 100%;
+}
+
+.home__nav button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 8px 4px;
+  border: 2px dashed var(--card-line);
+  border-radius: 13px;
+  background: var(--card);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 10.5px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.08s ease;
+}
+
+.home__nav button:hover {
+  border-color: var(--orange);
+}
+.home__nav button:active {
+  transform: translateY(1px);
+}
+
+.nav__icon {
+  font-size: 19px;
+  line-height: 1;
+}
+
+/* ---------- account ---------- */
+
+.guest-note {
+  margin: 2px 0 0;
+  padding: 8px 10px;
+  border: 2px dashed var(--card-line);
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--ink-soft);
+  font-size: 11px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.account {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: auto;
+  padding: 5px 6px 5px 5px;
+  border: 2px solid rgba(139, 94, 60, 0.2);
+  border-radius: 999px;
+  background: var(--card);
+  box-shadow: 0 3px 0 rgba(139, 94, 60, 0.14);
+}
+
+.account__avatar {
+  width: 30px;
+  height: 30px;
+  border: 2px solid var(--gold);
+  border-radius: 50%;
+}
+
+.account__name {
+  flex: 1;
+  font-family: var(--display);
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.account__signout {
+  padding: 5px 12px;
+  border: 2px solid var(--card-line);
+  border-radius: 999px;
+  background: var(--cream-deep);
+  color: var(--ink-soft);
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.account__signout:hover {
+  color: var(--ink);
+}
+
+/* ---------- topbar ---------- */
+
+.topbar {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.topbar__back {
+  padding: 6px 15px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #a06a41 0%, #7a4f2f 100%);
+  color: #ffe3bc;
+  font-family: var(--display);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 3px 0 #5d3c24;
+}
+
+.topbar__back:active {
+  transform: translateY(1px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 0 #5d3c24;
+}
+
+.topbar__title {
+  padding: 5px 14px;
+  border: 2px solid var(--card-line);
+  border-radius: 999px;
+  background: var(--card);
+  font-family: var(--display);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+/* ---------- game ---------- */
+
+.game__bar {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.hint {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: var(--green-wash);
+  color: var(--green-ink);
+  font-size: 11.5px;
+  text-align: center;
+}
+
+.timer {
+  position: relative;
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--card);
+  box-shadow: 0 2px 0 rgba(139, 94, 60, 0.2);
+}
+
+.timer svg {
+  position: absolute;
+  transform: rotate(-90deg);
+}
+
+.timer__track {
+  fill: none;
+  stroke: var(--cream-deep);
+  stroke-width: 4;
+}
+
+.timer__progress {
+  fill: none;
+  stroke: var(--green-deep);
+  stroke-width: 4;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.25s linear;
+}
+
+.timer__label {
+  font-family: var(--display);
+  font-size: 13px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.timer--urgent .timer__progress {
+  stroke: var(--wrong);
+}
+.timer--urgent .timer__label {
+  color: var(--wrong);
+}
+
+/* ---------- code ---------- */
+
+.code-viewer {
+  /* Never shrink: the shell scrolls instead. A clipped line could be the buggy one. */
+  flex: 0 0 auto;
+  overflow-x: auto;
+  padding: 8px 0;
+  border: 2px solid var(--card-line);
+  border-radius: 14px;
+  /* Solarized Light's own background — the snippet is a page in the same book. */
+  background: #fdf6e3;
+  box-shadow: 0 4px 0 rgba(139, 94, 60, 0.12);
+}
+
+.code-lines {
+  display: flex;
+  flex-direction: column;
+  width: max-content;
+  min-width: 100%;
+}
+
+.code-line {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  width: 100%;
+  padding: 2px 12px;
+  border: 0;
+  border-left: 3px solid transparent;
+  background: transparent;
+  color: #586e75;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.6;
+  text-align: left;
+  white-space: pre;
+  cursor: pointer;
+}
+
+.code-line:not(:disabled):hover {
+  border-left-color: var(--orange);
+  background: rgba(242, 133, 60, 0.1);
+}
+
+.code-line:focus-visible {
+  outline: 2px solid var(--orange);
+  outline-offset: -2px;
+  background: rgba(242, 133, 60, 0.1);
+}
+
+.code-line:disabled {
+  cursor: default;
+}
+
+.code-line__number {
+  flex: 0 0 auto;
+  width: 18px;
+  color: #b8ac90;
+  text-align: right;
+  user-select: none;
+}
+
+.code-line__mark {
+  flex: 0 0 auto;
+  width: 11px;
+  margin-left: -5px;
+  font-weight: 700;
+  text-align: center;
+  user-select: none;
+}
+
+.code-line__content {
+  flex: 1 1 auto;
+  font: inherit;
+}
+
+.code-line--bug {
+  border-left-color: var(--right);
+  background: var(--right-wash);
+}
+.code-line--bug .code-line__mark {
+  color: var(--green-ink);
+}
+
+.code-line--miss {
+  border-left-color: var(--wrong);
+  background: var(--wrong-wash);
+}
+.code-line--miss .code-line__mark {
+  color: var(--wrong);
+}
+
+/* ---------- result ---------- */
+
+.result {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border: 2px solid var(--card-line);
+  border-radius: 16px;
+  background: var(--card);
+  box-shadow: 0 4px 0 rgba(139, 94, 60, 0.12);
+}
+
+.result--correct {
+  border-color: var(--right);
+  background: linear-gradient(180deg, #f2fadf 0%, var(--card) 60%);
+}
+
+.result--miss {
+  border-color: rgba(226, 96, 63, 0.5);
+}
+
+.result__header {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.result__headline {
+  margin: 0;
+  font-family: var(--display);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.result__subline {
+  margin: 1px 0 0;
+  color: var(--ink-soft);
+  font-size: 11.5px;
+}
+
+.result__points {
+  margin-left: auto;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #f9d868 0%, var(--gold) 100%);
+  color: #7a5600;
+  font-family: var(--display);
+  font-size: 16px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 2px 0 #d0a01d;
+}
+
+.result__explanation {
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--green-wash);
+  color: #3f5a24;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.result__badges {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.badge-pill {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 10px;
+  border: 2px solid var(--gold);
+  border-radius: 12px;
+  background: #fdf3d3;
+}
+
+.badge-pill__icon {
+  font-size: 20px;
+}
+
+.badge-pill strong {
+  display: block;
+  font-size: 12.5px;
+}
+
+.badge-pill__desc {
+  color: var(--ink-soft);
+  font-size: 10.5px;
+}
+
+.result__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.result__streak {
+  color: var(--ink-soft);
+  font-size: 11px;
+}
+
+.result__footer .btn {
+  padding: 9px 18px;
+  font-size: 14px;
+}
+
+.error-message {
+  margin: 0;
+  max-width: 290px;
+  padding: 12px;
+  border: 2px dashed var(--card-line);
+  border-radius: 14px;
+  background: var(--card);
+  line-height: 1.5;
+}
+
+/* ---------- summary / share ---------- */
+
+.summary {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.summary__title {
+  margin: 2px 0 0;
+  font-family: var(--display);
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.summary__track {
+  color: var(--orange-deep);
+  font-size: 16px;
+}
+
+.summary__score {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 12.5px;
+}
+
+.summary__grid {
+  width: 100%;
+  margin: 8px 0;
+  padding: 14px;
+  border: 2px dashed var(--card-line);
+  border-radius: 14px;
+  background: var(--card);
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.8;
+  text-align: center;
+  white-space: pre;
+}
+
+.summary__next {
+  margin: 4px 0 0;
+  color: var(--ink-soft);
+  font-size: 11px;
+}
+
+/* ---------- leaderboard ---------- */
+
+.board {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.board__list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.board__row {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  padding: 7px 10px;
+  border: 2px solid var(--card-line);
+  border-radius: 12px;
+  background: var(--card);
+}
+
+.board__row--me {
+  border-color: var(--orange);
+  background: #fdeedd;
+  box-shadow: 0 3px 0 rgba(242, 133, 60, 0.28);
+}
+
+.board__rank {
+  width: 22px;
+  color: var(--ink-soft);
+  font-family: var(--display);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.board__avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+}
+
+.board__avatar--blank {
+  background: var(--cream-deep);
+}
+
+.board__name {
+  flex: 1;
+  overflow: hidden;
+  font-size: 12.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.board__points {
+  color: var(--orange-deep);
+  font-family: var(--display);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- profile ---------- */
+
+.profile {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.profile__head {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.profile__avatar {
+  width: 52px;
+  height: 52px;
+  border: 3px solid var(--gold);
+  border-radius: 50%;
+  box-shadow: 0 3px 8px rgba(93, 63, 36, 0.22);
+}
+
+.profile__name {
+  margin: 0;
+  font-family: var(--display);
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.profile__sub {
+  margin: 1px 0 0;
+  color: var(--green-ink);
+  font-size: 12px;
+}
+
+.profile__mascot {
+  margin-left: auto;
+}
+
+.profile__stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  padding: 9px 4px;
+  border: 2px solid var(--card-line);
+  border-radius: 16px;
+  background: var(--card);
+}
+
+.profile__stats .stat {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.profile__stats .stat + .stat {
+  border-left: 2px solid var(--card-line);
+}
+
+.profile__stats .stat__label {
+  color: var(--green-ink);
+}
+
+.profile__weak {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 0;
+  padding: 10px 12px;
+  border: 2px solid #d5e8b0;
+  border-radius: 14px;
+  background: var(--green-wash);
+  color: #3f5a24;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.btn--sm {
+  padding: 7px 13px;
+  font-size: 12px;
+}
+
+.badges__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding: 11px 12px 12px;
+  border: 2px solid var(--card-line);
+  border-radius: 16px;
+  background: var(--card);
+}
+
+.badges__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.badges__title {
+  margin: 0;
+  font-family: var(--display);
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.badges__empty {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0;
+  padding: 10px 11px;
+  border: 2px dashed var(--card-line);
+  border-radius: 14px;
+  background: var(--green-wash);
+  color: var(--ink-soft);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.badges {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.badge {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  align-items: center;
+  padding: 11px 5px 8px;
+  border: 2px solid var(--card-line);
+  border-radius: 14px;
+  background: var(--card);
+  text-align: center;
+}
+
+.badge--earned {
+  border-color: var(--green-deep);
+  background: linear-gradient(180deg, #fdf3d3 0%, var(--card) 70%);
+  box-shadow: 0 3px 0 rgba(134, 183, 63, 0.3);
+}
+
+.badge--locked {
+  opacity: 0.6;
+}
+
+.badge__icon {
+  font-size: 25px;
+  line-height: 1;
+}
+
+.badge--locked .badge__icon {
+  filter: grayscale(1);
+}
+
+.badge__name {
+  font-size: 9.5px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+/* ---------- the full catalogue ---------- */
+
+.catalogue {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.catalogue__count {
+  align-self: center;
+  margin: 0;
+  padding: 5px 14px;
+  border: 2px solid var(--card-line);
+  border-radius: 999px;
+  background: var(--card);
+  font-family: var(--display);
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.catalogue__group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* A pill, not bare text. These labels float directly on the garden painting,
+   and pale uppercase over grass is unreadable — which is how "DAILY" ended up
+   invisible in the first draft. */
+.catalogue__family {
+  align-self: flex-start;
+  margin: 0 0 1px;
+  padding: 3px 9px;
+  border: 2px solid var(--card-line);
+  border-radius: 999px;
+  background: var(--card);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.badge-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 11px;
+  border: 2px solid var(--card-line);
+  border-radius: 14px;
+  background: var(--card);
+}
+
+.badge-row--earned {
+  border-color: var(--green-deep);
+  background: linear-gradient(180deg, #fdf3d3 0%, var(--card) 70%);
+}
+
+/* Locked rows stay legible. Greying out the TEXT would hide the very thing the
+   row exists to say — what you have to do to earn it. Only the icon is muted. */
+.badge-row--locked .badge-row__icon {
+  opacity: 0.45;
+}
+
+.badge-row__icon {
+  flex: 0 0 auto;
+  width: 26px;
+  font-size: 21px;
+  line-height: 1;
+  text-align: center;
+}
+
+.badge-row__text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.badge-row__name {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.badge-row__desc {
+  font-size: 11px;
+  line-height: 1.35;
+  color: var(--ink-soft);
+}
+
+.badge-row__tick {
+  flex: 0 0 auto;
+  margin-left: auto;
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--green-deep);
+}
+
+.profile__share {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.profile__share .btn {
+  flex: 1;
+  padding: 10px;
+  border: 0;
+  background: linear-gradient(180deg, #5b7fb5 0%, #46689b 100%);
+  color: #fff;
+  font-size: 13px;
+  text-align: center;
+  text-decoration: none;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 3px 0 #33507c;
+}
+
+/* ---------- track picker ---------- */
+
+.tracks {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.tracks__title {
+  margin: 4px 0 0;
+  font-family: var(--display);
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.tracks__body {
+  margin: 0;
+  max-width: 300px;
+  padding: 10px;
+  border: 2px dashed var(--card-line);
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--ink-soft);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.tracks__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  width: 100%;
+  margin-top: 6px;
+}
+
+.track {
+  padding: 12px 8px;
+  border: 2px solid var(--card-line);
+  border-radius: 14px;
+  background: var(--card);
+  color: var(--ink);
+  font-family: var(--display);
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 3px 0 rgba(139, 94, 60, 0.16);
+  transition: transform 0.08s ease;
+}
+
+.track:hover {
+  border-color: var(--orange);
+}
+
+.track:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 rgba(139, 94, 60, 0.16);
+}
+
+.track--active {
+  border-color: transparent;
+  background: linear-gradient(180deg, #f79b52 0%, #ea7734 100%);
+  color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 3px 0 #c25a20;
+}
+
+.tracks__note {
+  margin: auto 0 0;
+  color: var(--ink-soft);
+  font-size: 11px;
+}
+
+/* ---------- onboarding ---------- */
+
+.tour {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding-top: 16px;
+  text-align: center;
+}
+
+.tour__title {
+  margin: 4px 0 0;
+  font-family: var(--display);
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.tour__body {
+  margin: 0;
+  max-width: 300px;
+  padding: 12px;
+  border: 2px dashed var(--card-line);
+  border-radius: 14px;
+  background: var(--card);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.tour__dots {
+  display: flex;
+  gap: 6px;
+  margin: 4px 0;
+}
+
+.tour__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--card-line);
+}
+
+.tour__dot--on {
+  background: var(--orange);
+}
+
+.tour__skip {
+  margin-top: 2px;
+  border: 0;
+  background: transparent;
+  color: var(--ink-soft);
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.tour__skip:hover {
+  color: var(--ink);
+}
+
+/* ---------- settings ---------- */
+
+.settings {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.setting {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  border: 2px solid var(--card-line);
+  border-radius: 14px;
+  background: var(--card);
+  cursor: pointer;
+}
+
+.setting--stack {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  cursor: default;
+}
+
+.setting__name {
+  display: block;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.setting__hint {
+  display: block;
+  margin-top: 3px;
+  color: var(--ink-soft);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.setting__toggle {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  accent-color: var(--orange);
+  cursor: pointer;
+}
+
+.settings__note {
+  margin: auto 0 0;
+  padding: 10px;
+  border-radius: 12px;
+  background: rgba(253, 247, 232, 0.8);
+  color: var(--ink-soft);
+  font-size: 10.5px;
+  line-height: 1.45;
+}
+
+/* ---------- offline ---------- */
+
+.offline {
+  flex: 0 0 auto;
+  padding: 8px 12px;
+  border: 2px solid var(--gold);
+  border-radius: 12px;
+  background: #fdf3d3;
+  color: #8a6100;
+  font-size: 11.5px;
+  text-align: center;
+}
+
+/* ---------- skeletons ---------- */
+
+@keyframes bugsy-pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.85; }
+}
+
+.skeleton {
+  display: block;
+  border-radius: 6px;
+  background: var(--cream-deep);
+  animation: bugsy-pulse 1.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}
+
+.skeleton--chip {
+  width: 62px;
+  height: 24px;
+  border-radius: 999px;
+}
+.skeleton--timer {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+.code-line--skeleton {
+  cursor: default;
+}
+.skeleton--line {
+  height: 10px;
+}
+.skeleton--rank {
+  width: 14px;
+  height: 12px;
+}
+.skeleton--avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+}
+.skeleton--name {
+  flex: 1;
+  height: 12px;
+}
+
+/* ---------- language dropdown ---------- */
+
+.filters {
+  flex-direction: row;
+  gap: 6px;
+  justify-content: center;
+}
+
+/* A native select, dressed for the garden. The wrapper carries the look; the
+   <select> itself stays a real select so the keyboard and the screen reader get
+   the behaviour they already know. */
+.select {
+  position: relative;
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  padding: 0 22px 0 9px;
+  border: 2px solid var(--card-line);
+  border-radius: 999px;
+  background: var(--card);
+  cursor: pointer;
+}
+
+.select:hover {
+  border-color: var(--orange);
+}
+
+.select:focus-within {
+  border-color: var(--orange);
+  box-shadow: 0 0 0 3px rgba(242, 133, 60, 0.22);
+}
+
+.select__icon {
+  flex: 0 0 auto;
+  margin-right: 4px;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.select__field {
+  appearance: none;
+  padding: 6px 2px;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 11.5px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.select__field:focus {
+  outline: none;
+}
+
+.select__caret {
+  position: absolute;
+  right: 9px;
+  color: var(--ink-soft);
+  font-size: 10px;
+  pointer-events: none;
+}
+
+/* A setting row's dropdown must not push the row wider than the card. The label
+   text beside it can wrap; the control cannot, so it gets a hard ceiling. */
+.select--setting {
+  flex: 0 0 auto;
+  max-width: 140px;
+}
+
+.select--setting .select__field {
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Room for the dropdown: the text column takes what is left, and wraps. */
+.setting > div:first-child {
+  flex: 1 1 auto;
+  min-width: 0;
+}
