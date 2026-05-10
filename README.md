@@ -24,15 +24,15 @@ You can play Practice immediately, as a guest, with no account and no backend ru
 
 ## What's in it
 
-**A daily challenge.** Three snippets, the same three for everyone, generated server-side at midnight UTC. Miss a day and the streak resets — there is no freeze, no catch-up.
+**A daily challenge.** Three snippets, generated server-side and identical for everyone on your track, so there is nothing to shop around for.
 
-**Practice, unlimited.** Filter by language or take whatever comes.
+**Language tracks.** Pick which of the eight languages your daily comes from, or leave it on Mixed. Miss a day and the streak resets — there is no freeze, no catch-up.
 
-**Language tracks.** Pick which of the eight languages your daily comes from, or leave it on Mixed.
+**Practice, unlimited.** Filter by language and difficulty, or take whatever comes.
 
 **31 badges** in seven families: daily streaks, speed, practice runs, volume, hard bugs, one per language, and two mastery badges — Polyglot (a bug in every language) and Entomologist (every category of bug). They start hidden in your profile and land there as you earn them; the full catalogue is one tap away.
 
-**A leaderboard**, weekly and all-time, updating live.
+**A leaderboard** — today, this week, all time — updating live.
 
 ## The content
 
