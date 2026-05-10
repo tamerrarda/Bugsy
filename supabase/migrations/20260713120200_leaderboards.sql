@@ -1,4 +1,4 @@
--- Leaderboard views (spec §4.3, §5.3): daily, weekly, all-time, by points sum.
+-- Leaderboard views: daily, weekly, all-time, by points sum.
 --
 -- These deliberately run with security_invoker = false, i.e. as the view owner
 -- (postgres) rather than the caller. They have to: RLS on `attempts` limits a
@@ -6,10 +6,10 @@
 -- everyone. Running as owner is what makes the aggregate possible.
 --
 -- That is safe here only because of what the views project: username, avatar_url,
--- points, rank — and nothing else (spec §5.3). No attempt rows, no challenge ids,
+-- points, rank — and nothing else. No attempt rows, no challenge ids,
 -- no answers leak through them. Do not add columns to these views casually.
 --
--- Day boundaries are UTC (spec §2.1), stated explicitly rather than relying on
+-- Day boundaries are UTC, stated explicitly rather than relying on
 -- the database's TimeZone setting.
 
 create view leaderboard_alltime

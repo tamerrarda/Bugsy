@@ -161,7 +161,7 @@ ok(
 // ---------------------------------------------------------------- 3
 console.log('\n[3] Streak: 3/3 bitirince artiyor (dogruluk degil, TAMAMLAMA)')
 const c1 = await newPlayer('streak-c')
-// Hepsini YANLIS cevapla — spec §4.1: "completion, not perfection".
+// Get all three WRONG — "completion, not perfection".
 const wrongRun = await playDaily(c1.jwt, [false, false, false])
 const last = wrongRun.results[2]
 ok(last.dailyComplete === true, 'gun tamamlandi olarak isaretlendi')

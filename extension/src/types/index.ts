@@ -1,5 +1,5 @@
 /**
- * Shared types. These mirror the DB schema (BUGSY_SPEC.md §5.3) and the Edge
+ * Shared types. These mirror the DB schema and the Edge
  * Function contracts (§5.4) exactly — when the backend lands in Milestone 2,
  * these types must not need to change.
  *
@@ -14,7 +14,7 @@
  * Adding a language means four things, and skipping any of them ships broken
  * content: this list, a Shiki grammar in lib/highlight.ts, a runner in
  * scripts/runners.mjs (a language we cannot RUN is a language whose bugs we
- * cannot prove), and a daily track (spec §2.1 — each language has its own daily,
+ * cannot prove), and a daily track (each language has its own daily,
  * so a Rust developer is not handed three JavaScript snippets).
  */
 export const LANGUAGES = [
@@ -195,7 +195,7 @@ export interface DailySet {
   attempts: DailyAttempt[]
 }
 
-/** A row of any of the three leaderboard views (spec §5.3). */
+/** A row of any of the three leaderboard views. */
 export interface LeaderboardRow {
   username: string
   avatarUrl: string | null

@@ -1,7 +1,7 @@
 import type { Difficulty, Language } from '../types'
 
 /**
- * User settings (spec §7.13).
+ * User settings.
  *
  * These live in `chrome.storage.sync`, not `local`, for two reasons: they follow
  * the user to another machine, and the service worker needs to read

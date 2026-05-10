@@ -124,7 +124,7 @@ begin
        and a.mode = 'daily'
        and a.challenge_id = any(v_daily_ids);
 
-    -- "Completion, not perfection" (spec §4.1).
+    -- "Completion, not perfection".
     if v_done_today >= 3 then
       v_completed_daily := true;
 

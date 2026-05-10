@@ -2,7 +2,7 @@
  * GET /get-practice?language=&difficulty=   (auth required)
  *
  * Returns one random challenge the user has not attempted, stripped of the
- * answer fields, and stamps served_at for it (spec §5.4).
+ * answer fields, and stamps served_at for it.
  *
  * The stripping is not done here — `serve_practice` never selects bug_line or
  * explanation in the first place, so there is nothing in this process to leak.
@@ -16,7 +16,7 @@ Deno.serve(async (req: Request) => {
   const user = await requireUser(req)
   if (!user) return json({ error: 'Sign in to play.' }, 401)
 
-  // Accept filters from the query string (the spec's GET form) or a JSON body
+  // Accept filters from the query string or a JSON body
   // (what supabase-js `functions.invoke` sends by default).
   const url = new URL(req.url)
   let language = url.searchParams.get('language')

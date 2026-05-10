@@ -1,7 +1,7 @@
 /**
  * The GUEST implementation of BugsyApi.
  *
- * Guests play Practice without an account (spec §5.7), which means their
+ * Guests play Practice without an account, which means their
  * challenges must be answerable with no server — so their answers ship inside the
  * extension bundle. That is safe only because of a hard rule enforced in
  * scripts/seed.ts: the bundle contains ONLY the guest pool, and no guest snippet
@@ -103,7 +103,7 @@ export function createLocalServer(deps: LocalServerDeps = {}): BugsyApi {
   }
 
   async function submitAttempt(req: SubmitAttemptRequest): Promise<AttemptResult> {
-    // Daily is a scored, ranked mode, so it requires an account (spec §5.7).
+    // Daily is a scored, ranked mode, so it requires an account.
     // A guest reaching here means the UI let them, which would be a bug.
     if (req.mode === 'daily') {
       throw new ServerError('Sign in with GitHub to play the daily challenge.')
@@ -159,7 +159,7 @@ export function createLocalServer(deps: LocalServerDeps = {}): BugsyApi {
 
   /**
    * Practice-mode accuracy streak, kept locally. Guests may play Practice
-   * without an account (spec §5.7), so this streak is local-only and carries no
+   * without an account, so this streak is local-only and carries no
    * leaderboard weight. Daily streaks are server-computed in M3.
    */
   async function updateAccuracyStreak(correct: boolean): Promise<Streaks> {

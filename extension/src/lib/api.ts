@@ -19,7 +19,7 @@ export interface PracticeFilters {
  * signed in:
  *
  *   guest  -> localServer.ts, playing the small demo pool bundled in the
- *             extension. No points, no leaderboard (spec §5.7).
+ *             extension. No points, no leaderboard.
  *   signed  -> serverApi.ts, calling the Supabase Edge Functions. Scored, ranked,
  *      in     and the answers live only on the server.
  *
@@ -36,7 +36,7 @@ export interface BugsyApi {
    * `GET /get-daily` — today's three challenges on the given TRACK, plus any
    * already answered.
    *
-   * The daily is per-language (spec §2.1). With eight languages, three shared
+   * The daily is per-language. With eight languages, three shared
    * slots cannot represent them all, and a Rust developer handed three C# snippets
    * either loses their streak or clicks blindly. Everyone on the same track still
    * gets the same three — so anti-cheat rule 4 holds and the emoji grid stays

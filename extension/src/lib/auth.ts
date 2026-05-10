@@ -2,7 +2,7 @@ import type { Session } from '@supabase/supabase-js'
 import { supabase } from './supabase'
 
 /**
- * GitHub OAuth inside Manifest V3 (spec §5.7).
+ * GitHub OAuth inside Manifest V3.
  *
  * A normal web OAuth redirect cannot work here: there is no page for the provider
  * to redirect back to, and the popup is destroyed the moment focus leaves it. So
@@ -18,7 +18,7 @@ import { supabase } from './supabase'
  *
  * The redirect URL is derived from the extension ID, which is pinned by the
  * `key` field in manifest.json — if that ID changes, this URL changes, and
- * Supabase rejects the callback (spec §10).
+ * Supabase rejects the callback.
  */
 
 export interface AuthUser {

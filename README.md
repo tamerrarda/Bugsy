@@ -38,7 +38,7 @@ You can play Practice immediately, as a guest, with no account and no backend ru
 
 350 snippets across **8 languages** — 100 TypeScript, 60 JavaScript, 40 Python, and 30 each of Java, C#, C, C++ and Rust — spread over eight bug categories: `async`, `logic`, `mutation`, `null-undefined`, `off-by-one`, `scope`, `type-coercion`, `wrong-operator`. Roughly a third easy, a third medium, a third hard.
 
-They live in `content/{language}/{category}/*.json`, one file per snippet, in the schema from [`BUGSY_SPEC.md`](BUGSY_SPEC.md) §3.1. Two gates stand between a snippet and a player:
+They live in `content/{language}/{category}/*.json`, one file per snippet — `id`, `language`, `category`, `difficulty`, `code`, `bugLine`, `explanation`. Two gates stand between a snippet and a player:
 
 **`node scripts/seed.ts --check`** — schema, length, `bugLine` in range and not on a blank line, no duplicate ids, the folder path agreeing with the declared language and category, and no comment or identifier that gives the answer away.
 
@@ -122,5 +122,3 @@ supabase/
   tests/            end-to-end suites
 store/              Chrome Web Store listing, privacy policy, screenshots
 ```
-
-The product spec — scoring formula, badge rules, screen-by-screen copy — is [`BUGSY_SPEC.md`](BUGSY_SPEC.md).

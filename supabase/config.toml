@@ -163,7 +163,7 @@ site_url = "http://127.0.0.1:3000"
 #
 # The chromiumapp.org entry is where Chrome sends the OAuth callback for an
 # extension (chrome.identity.launchWebAuthFlow). The subdomain IS the extension
-# ID, which is pinned by the `key` field in extension/manifest.json (spec §10) —
+# ID, which is pinned by the `key` field in extension/manifest.json —
 # if that key ever changes, the ID changes, this URL stops matching, and every
 # sign-in fails with "redirect_uri not allowed".
 additional_redirect_urls = [
@@ -422,7 +422,7 @@ enabled = true
 # JSON string passed through to pg-delta SQL formatting.
 # format_options = "{\"keywordCase\":\"upper\",\"indent\":2,\"maxWidth\":80,\"commaStyle\":\"trailing\"}"
 
-# GitHub sign-in (spec §5.7).
+# GitHub sign-in.
 #
 # Must be a GitHub *OAuth App* (client id starts with `Ov23li…`), not a GitHub
 # App (`Iv23li…`). GitHub Apps ignore OAuth scopes and expose the user's email

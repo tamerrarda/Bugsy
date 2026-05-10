@@ -1,5 +1,5 @@
 /**
- * Bugsy the mascot (spec §6.2).
+ * Bugsy the mascot.
  *
  * The art lives in `public/mascot/` rather than being imported as a module, so
  * each mood is a separate file the browser fetches only when it is actually

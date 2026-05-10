@@ -8,7 +8,7 @@ interface Step {
 }
 
 /**
- * The 3-step first-run tour (spec §7.13). Bugsy speaking, short and playful,
+ * The 3-step first-run tour. Bugsy speaking, short and playful,
  * at most one exclamation mark across the whole thing (§6.2).
  */
 const STEPS: Step[] = [

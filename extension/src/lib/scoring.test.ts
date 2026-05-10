@@ -24,7 +24,7 @@ describe('computePoints', () => {
     { name: 'exactly at the buzzer', correct: true, difficulty: 3, elapsedMs: ROUND_SECONDS * 1000, expected: 300 },
     { name: 'well past the buzzer', correct: true, difficulty: 3, elapsedMs: 240_000, expected: 300 },
 
-    // Wrong answers never score, and never go negative (spec §4.3).
+    // Wrong answers never score, and never go negative.
     { name: 'wrong, fast', correct: false, difficulty: 3, elapsedMs: 0, expected: 0 },
     { name: 'wrong, slow', correct: false, difficulty: 1, elapsedMs: 120_000, expected: 0 },
   ]

@@ -59,6 +59,6 @@ export function createMemoryStatsStore(initial: LocalStats = EMPTY_STATS): Stats
   }
 }
 
-/** The "click the buggy line" hint shows on the first play only (spec §6.1). */
+/** The "click the buggy line" hint shows on the first play only. */
 export const getHintSeen = (): Promise<boolean> => read(HINT_KEY, false)
 export const markHintSeen = (): Promise<void> => write(HINT_KEY, true)

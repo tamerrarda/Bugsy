@@ -11,7 +11,7 @@ import type { BugsyApi, PracticeFilters } from './api'
 import { supabase } from './supabase'
 
 /**
- * The real API: the Supabase Edge Functions from spec §5.4.
+ * The real API: the Supabase Edge Functions.
  *
  * This implements exactly the same `BugsyApi` interface as the Milestone 1
  * localServer, which is why the game UI did not have to change at all when the
@@ -63,7 +63,7 @@ export const serverApi: BugsyApi = {
 /**
  * Leaderboards are plain views, read with the anon key straight through
  * PostgREST — no Edge Function needed, because they expose only username,
- * avatar_url, points and rank (spec §5.3). There is nothing to strip.
+ * avatar_url, points and rank. There is nothing to strip.
  */
 export async function getLeaderboard(period: LeaderboardPeriod): Promise<LeaderboardRow[]> {
   const { data, error } = await supabase

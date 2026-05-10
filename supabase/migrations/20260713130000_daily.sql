@@ -1,4 +1,4 @@
--- Daily challenge (spec §2.1, §5.4).
+-- Daily challenge.
 --
 -- Anti-cheat rule 4: the daily set is generated server-side and is identical for
 -- everyone. It is created on the first request of a UTC day and then frozen — the
@@ -20,7 +20,7 @@ begin
   end if;
 
   -- One challenge of each difficulty, so every day has an easy, a medium and a
-  -- hard (spec §5.4). Ordered easiest-first so the day ramps up.
+  -- hard. Ordered easiest-first so the day ramps up.
   select array_agg(id order by difficulty)
     into v_ids
     from (

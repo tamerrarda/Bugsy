@@ -1,4 +1,4 @@
--- The badge catalogue (spec §4.2). Exactly these six in v1.
+-- The badge catalogue. Exactly these six in v1.
 -- Idempotent so `supabase db reset` and re-running migrations stay clean.
 
 insert into badges (id, name, description) values

@@ -1,4 +1,4 @@
--- Live leaderboard (spec §6.1, §7.10).
+-- Live leaderboard.
 --
 -- The obvious approach — subscribing to postgres_changes on `attempts` — is a
 -- trap here. RLS restricts a player to their OWN attempt rows, so such a

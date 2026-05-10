@@ -1,5 +1,5 @@
 /**
- * Confetti on a correct answer (spec §6.2).
+ * Confetti on a correct answer.
  *
  * Lazy-loaded: the module is only fetched the first time someone actually gets
  * one right, so a player who is still warming up never downloads it. It is also

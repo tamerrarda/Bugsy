@@ -1,4 +1,4 @@
--- Row Level Security. RLS is enabled on EVERY table (BUGSY_SPEC.md invariant).
+-- Row Level Security. RLS is enabled on EVERY table. No exceptions.
 --
 -- The service_role key used by the Edge Functions bypasses RLS by design; these
 -- policies govern what the extension's anon key can reach directly via PostgREST.
@@ -40,7 +40,7 @@ grant select on badges to anon;
 
 -- challenges ----------------------------------------------------------------
 -- THE invariant: bug_line and explanation must never reach a client before an
--- attempt. Direct select is revoked outright (spec §5.3), so the only way to see
+-- attempt. Direct select is revoked outright, so the only way to see
 -- a challenge is through an Edge Function, which strips the answer fields.
 revoke all on challenges from anon, authenticated;
 
@@ -73,7 +73,7 @@ create policy "users can read their own attempts"
   using ((select auth.uid()) = user_id);
 
 -- streaks -------------------------------------------------------------------
--- Read-only to the owner; only the server may write them (spec §4.1).
+-- Read-only to the owner; only the server may write them.
 create policy "users can read their own streaks"
   on streaks for select
   using ((select auth.uid()) = user_id);

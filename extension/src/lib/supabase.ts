@@ -6,7 +6,7 @@ import { createClient, type SupportedStorage } from '@supabase/supabase-js'
  * It holds the ANON key only. The anon key can read the badge catalogue and the
  * leaderboard views, and nothing else — `challenges`, `serves` and the grading
  * functions are all revoked from it at the database level. The service-role key
- * never comes near this bundle (spec §10).
+ * never comes near this bundle.
  */
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string | undefined
@@ -23,7 +23,7 @@ export const SUPABASE_ORIGIN = SUPABASE_URL
 /**
  * supabase-js reaches for localStorage by default, which a service worker does
  * not have and which an extension popup loses on every close. chrome.storage.local
- * survives both, so the session persists across popup open/close (spec §5.6).
+ * survives both, so the session persists across popup open/close.
  */
 const hasChromeStorage = (): boolean =>
   typeof chrome !== 'undefined' && chrome.storage?.local !== undefined

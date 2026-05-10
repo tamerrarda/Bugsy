@@ -1,4 +1,4 @@
--- Streak engine + badge engine (spec §4.1, §4.2, §7.9).
+-- Streak engine + badge engine.
 --
 -- Both run INSIDE submit_attempt's transaction, alongside the attempt insert.
 -- That is not a stylistic choice: if the attempt committed but the streak update
@@ -119,7 +119,7 @@ begin
        and a.mode = 'daily'
        and a.challenge_id = any(v_daily_ids);
 
-    -- "Completion, not perfection" (spec §4.1): finishing all three counts,
+    -- "Completion, not perfection": finishing all three counts,
     -- regardless of how many were right. A day of near-misses still keeps a
     -- 60-day streak alive, which is the kind thing to do and the reason people
     -- come back.
@@ -147,7 +147,7 @@ begin
 
   select * into v_streaks from streaks where user_id = p_user_id;
 
-  -- ---------------- badges (spec §4.2) ----------------
+  -- ---------------- badges ----------------
   -- Awarded in the same transaction as the attempt that earned them, so a badge
   -- can never be "almost" awarded.
   -- array_append, not ||. With `||` the bare literal is of type `unknown`, so

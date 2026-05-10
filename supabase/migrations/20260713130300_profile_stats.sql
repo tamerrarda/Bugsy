@@ -1,4 +1,4 @@
--- Profile stats (spec §6.1: "accuracy %, best streaks, weakest category").
+-- Profile stats.
 --
 -- The weakest-category stat needs attempts joined to challenges.category — but
 -- `challenges` is revoked from every client role, because that is the table the

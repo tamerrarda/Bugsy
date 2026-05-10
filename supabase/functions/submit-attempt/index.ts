@@ -5,7 +5,7 @@
  * Returns: { correct, bugLine, explanation, points, streaks, newBadges }
  *
  * This is the ONLY place the true bug line and the explanation are ever revealed
- * (spec §5.4). The grading, scoring, attempt insert and streak update all happen
+ *. The grading, scoring, attempt insert and streak update all happen
  * inside the `submit_attempt` database function, in one transaction.
  *
  * Note what this function does NOT take from the client: no user id (it comes

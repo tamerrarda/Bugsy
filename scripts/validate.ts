@@ -1,5 +1,5 @@
 /**
- * Content validation rules for Bugsy snippets (BUGSY_SPEC.md §3).
+ * Content validation rules for Bugsy snippets.
  *
  * Pure on purpose: no filesystem, no process, no imports. `seed.ts` is the CLI
  * shell that reads files and calls in here, which lets these rules be unit

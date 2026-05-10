@@ -37,7 +37,7 @@ interface Challenge {
 /**
  * The two pools, and why they must never intersect.
  *
- * Guest players (spec §5.7) play Practice without an account, which means their
+ * Guest players play Practice without an account, which means their
  * challenges have to be answerable offline — the answers ship inside the
  * extension bundle. That is fine for them: a guest earns no points and appears on
  * no leaderboard, so knowing an answer buys nothing.

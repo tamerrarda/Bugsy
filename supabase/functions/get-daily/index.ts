@@ -3,7 +3,7 @@
  *
  * Response: { day, language, challenges: [...], attempts: [...today's attempts] }
  *
- * The daily is a per-language TRACK (spec §2.1). Everyone on the same track gets
+ * The daily is a per-language TRACK. Everyone on the same track gets
  * the same three snippets that day — generated server-side, so there is nothing to
  * shop around for (anti-cheat rule 4) — and the shareable emoji grid stays
  * comparable, because the people you compare yourself to solved the same three.

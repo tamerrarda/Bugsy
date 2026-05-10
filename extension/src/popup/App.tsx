@@ -77,7 +77,7 @@ export function App() {
       setTrack(s.dailyTrack)
     })
 
-    // First run gets the tour before anything else (spec §7.13).
+    // First run gets the tour before anything else.
     void getOnboarded().then((seen) => {
       if (!seen) setScreen({ name: 'tour' })
     })
@@ -213,7 +213,7 @@ export function App() {
 
       if (result.streaks.dailyCurrent > 0) {
         setDailyStreak(result.streaks.dailyCurrent)
-        // Feed the toolbar badge (spec §4.1). The service worker watches this key.
+        // Feed the toolbar badge. The service worker watches this key.
         void cacheDailyStreak(result.streaks.dailyCurrent)
       }
 

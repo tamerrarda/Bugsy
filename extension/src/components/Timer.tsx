@@ -11,7 +11,7 @@ const RADIUS = 14
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS
 
 /**
- * Cosmetic countdown (spec §5.5). The server times the round from `served_at`;
+ * Cosmetic countdown. The server times the round from `served_at`;
  * nothing here is ever sent to it or trusted by it. It exists to create urgency
  * and to fire `onExpire` so the round resolves on its own.
  */

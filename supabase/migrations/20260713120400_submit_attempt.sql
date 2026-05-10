@@ -1,8 +1,8 @@
--- The grading core (spec §5.4).
+-- The grading core.
 --
--- Why a database function and not just TypeScript in the Edge Function:
--- the spec requires the attempt insert, the scoring and the
--- streak update to happen in ONE transaction. A Deno function issuing several
+-- Why a database function and not just TypeScript in the Edge Function: the
+-- attempt insert, the scoring and the streak update have to happen in ONE
+-- transaction. A Deno function issuing several
 -- supabase-js calls is not a transaction — a crash between two of them leaves a
 -- scored attempt with no streak update, or vice versa. A plpgsql function is
 -- atomic by construction. The Edge Function stays the only entry point: it does
@@ -83,18 +83,18 @@ begin
 
   v_elapsed_ms := floor(extract(epoch from (now() - v_served_at)) * 1000);
 
-  if v_elapsed_ms > 300000 then   -- 5 minutes (spec §5.4)
+  if v_elapsed_ms > 300000 then   -- 5 minutes
     raise exception 'serve expired' using errcode = 'BG002';
   end if;
 
-  -- clicked_line 0 is the "timer ran out, no pick" sentinel (spec §5.4).
+  -- clicked_line 0 is the "timer ran out, no pick" sentinel.
   if p_clicked_line <> 0 and (p_clicked_line < 1 or p_clicked_line > v_line_count) then
     raise exception 'line % is not in this snippet', p_clicked_line using errcode = 'BG004';
   end if;
 
   v_correct := (p_clicked_line = v_bug_line);
 
-  -- Scoring (spec §4.3): base = difficulty x 100, bonus = remainingSeconds x 2.
+  -- Scoring: base = difficulty x 100, bonus = remainingSeconds x 2.
   -- Mirrors extension/src/lib/scoring.ts exactly; the bonus floors at zero rather
   -- than going negative.
   if v_correct then
@@ -115,8 +115,8 @@ begin
     raise exception 'already answered' using errcode = 'BG003';
   end if;
 
-  -- Accuracy streak (Practice only, spec §4.1). The DAILY streak and the badge
-  -- engine are Milestone 3 (spec §7.9) and are deliberately not implemented here
+  -- Accuracy streak (Practice only). The DAILY streak and the badge
+  -- engine are Milestone 3 and are deliberately not implemented here
   -- yet — daily_current / last_daily_date stay untouched, and new_badges is empty.
   if p_mode = 'practice' then
     update streaks

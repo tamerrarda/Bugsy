@@ -1,7 +1,7 @@
 import { LANGUAGE_LABEL, type Language } from '../types'
 
 /**
- * The Wordle-style share card (spec §2.1). This is the viral mechanic, so it is a
+ * The Wordle-style share card. This is the viral mechanic, so it is a
  * pure function with tests rather than string-building buried in a component.
  *
  *   Bugsy #47 [rust] 🐛
@@ -27,7 +27,7 @@ const MS_PER_DAY = 86_400_000
 /**
  * Which numbered puzzle a given UTC date is. Both sides are parsed as UTC
  * midnight, so this cannot drift by one depending on the reader's timezone —
- * the whole game is keyed to UTC days (spec §2.1).
+ * the whole game is keyed to UTC days.
  */
 export function puzzleNumber(day: string): number {
   const then = Date.parse(`${EPOCH}T00:00:00Z`)

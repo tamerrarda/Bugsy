@@ -150,7 +150,7 @@ export function Profile({ profile, onShowAllBadges }: ProfileProps) {
         )}
       </section>
 
-      {/* Pre-filled share links, no API integration needed (spec §4.2). */}
+      {/* Pre-filled share links, no API integration needed. */}
       <div className="profile__share">
         <a
           className="btn"

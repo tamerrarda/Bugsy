@@ -1,5 +1,5 @@
 /**
- * Service worker (spec §5.6).
+ * Service worker.
  *
  * Owns three things the popup cannot, because the popup is destroyed the moment
  * it loses focus:

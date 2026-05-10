@@ -1,6 +1,6 @@
--- Bugsy core schema (BUGSY_SPEC.md §5.3).
+-- Bugsy core schema.
 --
--- Note on `serves`: the spec's table list does not include it, but §5.4 and §5.5
+-- Note on `serves`: it is not an obvious table, but the anti-cheat rules
 -- require the server to time the round from when the challenge was *served*
 -- ("served_at is written when the challenge is fetched; the client timer is
 -- cosmetic"). That timestamp has to live somewhere durable, so it gets a table.
@@ -55,7 +55,7 @@ create table attempts (
   user_id uuid not null references profiles on delete cascade,
   challenge_id uuid not null references challenges on delete cascade,
   mode text not null check (mode in ('daily', 'practice')),
-  -- 0 means "the timer ran out, no line was picked" (spec §5.4). Any other
+  -- 0 means "the timer ran out, no line was picked". Any other
   -- value must be a real 1-indexed line, which submit-attempt range-checks
   -- against the snippet.
   clicked_line int not null check (clicked_line >= 0),

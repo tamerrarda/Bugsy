@@ -33,7 +33,7 @@ export function Leaderboard({ username }: LeaderboardProps) {
     void load()
   }, [load])
 
-  // Live updates while the board is open (spec §6.1).
+  // Live updates while the board is open.
   //
   // This listens for a BROADCAST, not postgres_changes. A postgres_changes
   // subscription on `attempts` would be filtered by RLS down to the subscriber's

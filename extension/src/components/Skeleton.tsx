@@ -1,5 +1,5 @@
 /**
- * Loading skeletons (spec §7.14).
+ * Loading skeletons.
  *
  * Shaped like the code block they replace, so the popup does not jump when the
  * snippet arrives — a spinner would reserve no space and the whole screen would

@@ -28,7 +28,7 @@ describe('puzzleNumber', () => {
 })
 
 describe('buildShareText', () => {
-  it('renders the spec example', () => {
+  it('renders the canonical example', () => {
     const text = buildShareText({
       day: '2026-08-28', // puzzle #47
       language: 'rust',

@@ -13,5 +13,6 @@ extension/src/generated/challenges.json
 
 # Local working notes, not part of the project.
 CLAUDE.md
+BUGSY_SPEC.md
 
 .DS_Store
