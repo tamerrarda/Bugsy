@@ -21,25 +21,48 @@ const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
 const PORT = 8911
 const CDP_PORT = 9339
 
+/** The daily language shown in the screenshots. */
+const TRACK = 'python'
+
 
 mkdirSync(OUT, { recursive: true })
 
-// A player with some history, so the leaderboard and profile are not empty.
-const email = `store-${Date.now()}@example.com`
-await fetch(`${API}/auth/v1/admin/users`, {
-  method: 'POST',
-  headers: { apikey: SERVICE, Authorization: `Bearer ${SERVICE}`, 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    email, password: 'pw-123456', email_confirm: true,
-    user_metadata: { user_name: 'you', avatar_url: '' },
-  }),
-}).then((r) => r.json())
+const svc = { apikey: SERVICE, Authorization: `Bearer ${SERVICE}`, 'Content-Type': 'application/json' }
 
-const session = await fetch(`${API}/auth/v1/token?grant_type=password`, {
-  method: 'POST',
-  headers: { apikey: ANON, 'Content-Type': 'application/json' },
-  body: JSON.stringify({ email, password: 'pw-123456' }),
-}).then((r) => r.json())
+// Wipe the local users first. Every e2e run leaves its cast behind, and the last
+// leaderboard screenshot was topped by `you-3`, `veteran-2` and `badge-hard-1` —
+// the test suite's own accounts, advertised to the Chrome Web Store. It also
+// means our player is `you` and not `you-5`: the username is unique, so the old
+// rows were pushing ours down the alphabet with every run.
+const existing = await fetch(`${API}/auth/v1/admin/users?per_page=1000`, { headers: svc })
+  .then((r) => r.json())
+for (const u of existing.users ?? []) {
+  await fetch(`${API}/auth/v1/admin/users/${u.id}`, { method: 'DELETE', headers: svc })
+}
+
+/** Creates a player and returns { id, session }. */
+async function signUp(username) {
+  const email = `store-${username}-${Date.now()}@example.com`
+  await fetch(`${API}/auth/v1/admin/users`, {
+    method: 'POST',
+    headers: svc,
+    body: JSON.stringify({
+      email, password: 'pw-123456', email_confirm: true,
+      user_metadata: { user_name: username, avatar_url: '' },
+    }),
+  }).then((r) => r.json())
+
+  const session = await fetch(`${API}/auth/v1/token?grant_type=password`, {
+    method: 'POST',
+    headers: { apikey: ANON, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password: 'pw-123456' }),
+  }).then((r) => r.json())
+
+  return { id: session.user.id, session }
+}
+
+const me = await signUp('you')
+const session = me.session
 
 const stored = JSON.stringify({
   access_token: session.access_token,
@@ -50,23 +73,117 @@ const stored = JSON.stringify({
   user: session.user,
 })
 
+const pool = await fetch(
+  `${API}/rest/v1/challenges?select=id,bug_line,language&active=eq.true`,
+  { headers: svc },
+).then((r) => r.json())
+
+/**
+ * Plays one snippet as `userId`, `seconds` after it was served.
+ *
+ * Nothing here is faked: every attempt goes through the real submit_attempt
+ * transaction and earns exactly what a human would earn for the same answer at
+ * the same speed. Back-dating the serve is the only way to stage a fast read —
+ * a script cannot type quickly.
+ */
+async function play(userId, challenge, { mode = 'practice', correct = true, seconds = 9 } = {}) {
+  await fetch(`${API}/rest/v1/serves`, {
+    method: 'POST',
+    headers: { ...svc, Prefer: 'resolution=merge-duplicates' },
+    body: JSON.stringify({
+      user_id: userId,
+      challenge_id: challenge.id,
+      mode,
+      served_at: new Date(Date.now() - seconds * 1000).toISOString(),
+    }),
+  })
+  await fetch(`${API}/rest/v1/rpc/submit_attempt`, {
+    method: 'POST',
+    headers: svc,
+    body: JSON.stringify({
+      p_user_id: userId,
+      p_challenge_id: challenge.id,
+      p_mode: mode,
+      p_clicked_line: correct ? challenge.bug_line : challenge.bug_line === 1 ? 2 : 1,
+    }),
+  })
+}
+
+// Today's daily set. It is built lazily on the first serve, and there is one per
+// (day, language) since language tracks landed — so build ours before asking.
+const today = new Date().toISOString().slice(0, 10)
+await fetch(`${API}/rest/v1/rpc/ensure_daily_set`, {
+  method: 'POST', headers: svc, body: JSON.stringify({ p_day: today, p_language: TRACK }),
+})
+const [{ challenge_ids: dailyIds }] = await fetch(
+  `${API}/rest/v1/daily_sets?day=eq.${today}&language=eq.${TRACK}&select=challenge_ids`,
+  { headers: svc },
+).then((r) => r.json())
+const daily = dailyIds.map((id) => pool.find((c) => c.id === id))
+
+// The leaderboard needs a field to lead. These are demo accounts on a local
+// database, and they play today's real daily set at different speeds, so the
+// ranking below is what the scoring function actually produced.
+// `practice` matters as much as `right`: the leaderboard counts every point
+// earned today, and our player is about to grind twelve practice snippets for
+// their badges. Rivals who only played the daily left them 4× clear of second
+// place — a board nobody is competing on, which is the opposite of the point.
+const RIVALS = [
+  { name: 'mira', right: 3, seconds: 11, practice: 14 },
+  { name: 'kenji', right: 3, seconds: 18, practice: 12 },
+  { name: 'sofia', right: 2, seconds: 14, practice: 11 },
+  { name: 'devrim', right: 2, seconds: 26, practice: 8 },
+  { name: 'lena', right: 1, seconds: 21, practice: 6 },
+  { name: 'omar', right: 1, seconds: 35, practice: 4 },
+]
+for (const [r, rival] of RIVALS.entries()) {
+  const { id } = await signUp(rival.name)
+  for (const [i, c] of daily.entries()) {
+    await play(id, c, { mode: 'daily', correct: i < rival.right, seconds: rival.seconds })
+  }
+  // A different slice each, so they are not all solving the same snippets.
+  for (const c of pool.slice(40 + r * 25, 40 + r * 25 + rival.practice)) {
+    await play(id, c, { seconds: rival.seconds })
+  }
+}
+
+// A brand-new account screenshots an empty profile — "No badges yet" — which is
+// honest and a terrible advert. So give our player a past: one bug in each of
+// the eight languages (that is the Polyglot badge), a couple read fast enough to
+// earn the speed badges, and a few more for volume.
+const LANGUAGES = ['javascript', 'typescript', 'python', 'java', 'csharp', 'c', 'cpp', 'rust']
+const history = LANGUAGES.map((lang) => pool.find((c) => c.language === lang)).filter(Boolean)
+for (const [i, c] of history.entries()) await play(me.id, c, { seconds: i === 0 ? 4 : 9 })
+for (const c of pool.filter((c) => !history.includes(c) && !daily.includes(c)).slice(0, 4)) {
+  await play(me.id, c, { seconds: 12 })
+}
+
 // The shell page: backdrop + caption + the popup in an iframe at true size.
+// The backdrop wears the same clothes as the product: Bugsy's garden, the warm
+// palette from popup.css, Baloo for the headline. A dark, techy slide holding a
+// storybook popup reads as two different products in one image.
 const SHELL = `
 <!doctype html><meta charset="utf-8">
 <style>
+  @font-face{font-family:'Baloo';src:url('/fonts/baloo2.woff2') format('woff2');font-weight:700 800;font-display:block}
+  @font-face{font-family:'Nunito';src:url('/fonts/nunito.woff2') format('woff2');font-weight:400 700;font-display:block}
   html,body{margin:0;width:1280px;height:800px;overflow:hidden;
-    background:radial-gradient(1000px 600px at 78% 18%, #241a16 0%, #0e0e11 62%);
-    font-family:system-ui,-apple-system,'Segoe UI',sans-serif;color:#e8e8ea}
-  .wrap{display:flex;align-items:center;justify-content:center;gap:88px;height:100%}
-  .copy{max-width:420px}
-  h1{margin:0;font-size:46px;line-height:1.1;letter-spacing:-0.02em;font-weight:800}
-  p{margin:16px 0 0;font-size:20px;line-height:1.5;color:#8a8a94}
-  .frame{width:400px;height:600px;border-radius:16px;overflow:hidden;
-    border:1px solid #2a2a33;box-shadow:0 40px 90px rgba(0,0,0,.6)}
+    font-family:'Nunito',system-ui,sans-serif;color:#5a3d24}
+  body::before{content:'';position:fixed;inset:0;
+    background:url('/bg/garden.webp') center/cover no-repeat;
+    filter:saturate(1.05)}
+  body::after{content:'';position:fixed;inset:0;
+    background:radial-gradient(900px 620px at 26% 50%, rgba(253,247,232,.94) 0%, rgba(251,241,220,.72) 45%, rgba(251,241,220,0) 78%)}
+  .wrap{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;gap:88px;height:100%}
+  .copy{max-width:430px}
+  h1{margin:0;font-family:'Baloo',cursive;font-size:52px;line-height:1.08;font-weight:800;color:#5a3d24}
+  p{margin:18px 0 0;font-size:21px;line-height:1.5;color:#9b7d5e;font-weight:600}
+  .frame{width:400px;height:600px;border-radius:22px;overflow:hidden;
+    border:3px solid #e3cfa8;box-shadow:0 34px 70px rgba(90,61,36,.28)}
   iframe{width:400px;height:600px;border:0;display:block}
-  .mark{position:absolute;top:40px;left:56px;display:flex;align-items:center;gap:10px;
-    font-weight:800;font-size:19px;letter-spacing:-0.01em}
-  .mark img{width:30px;height:30px}
+  .mark{position:absolute;z-index:2;top:38px;left:54px;display:flex;align-items:center;gap:11px;
+    font-family:'Baloo',cursive;font-weight:800;font-size:24px;color:#5a3d24}
+  .mark img{width:36px;height:36px}
 </style>
 <div class="mark"><img src="/mascot/bugsy-happy.png"><span>Bugsy</span></div>
 <div class="wrap">
@@ -75,7 +192,7 @@ const SHELL = `
 </div>
 `
 
-const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.png': 'image/png', '.svg': 'image/svg+xml' }
+const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.png': 'image/png', '.svg': 'image/svg+xml', '.webp': 'image/webp', '.woff2': 'font/woff2' }
 
 // The shell and the popup MUST be served from the same origin, or the iframe is
 // cross-origin and its contentWindow.document is unreachable — which means the
@@ -145,9 +262,14 @@ await send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 800, dev
 
 await send('Page.addScriptToEvaluateOnNewDocument', {
   source: `
-    const store = { local: { 'bugsy:auth': ${JSON.stringify(stored)} }, sync: { 'bugsy:onboarded': true } };
+    const store = {
+      local: { 'bugsy:auth': ${JSON.stringify(stored)} },
+      // Pre-pick the track. Otherwise "Play today's challenge" opens the language
+      // picker, and the first screenshot is a menu instead of the game.
+      sync: { 'bugsy:onboarded': true, 'bugsy:dailyTrack': ${JSON.stringify(TRACK)} },
+    };
     const area = (n) => ({
-      get: async (k) => { const keys = Array.isArray(k) ? k : [k]; const out = {}; for (const key of keys) if (key in store[n]) out[key] = store[n][key]; return out; },
+      get: async (k) => { if (k === null) return { ...store[n] }; const keys = Array.isArray(k) ? k : [k]; const out = {}; for (const key of keys) if (key in store[n]) out[key] = store[n][key]; return out; },
       set: async (o) => { Object.assign(store[n], o); },
       remove: async (k) => { delete store[n][k]; },
     });
@@ -166,7 +288,7 @@ const CAPTION = {
   '2-result': ['Always an explanation.', 'Not just what — why.'],
   '3-summary': ['Share it, spoiler-free.', 'Wordle-style emoji grid.'],
   '4-leaderboard': ['Same three bugs.', 'Everyone, every day.'],
-  '5-profile': ['Six badges.', 'And a streak worth keeping.'],
+  '5-profile': ['Thirty-one badges.', 'And a streak worth keeping.'],
 }
 
 /** Frames the popup iframe on a branded 1280×800 backdrop and shoots it. */
@@ -201,75 +323,57 @@ const inFrame = async (expr) =>
     return await (async (document, window) => { ${expr} })(d, w);
   })()`)
 
-// Play it properly. Clicking blindly gave a 0/3 grid — a real playthrough, but a
-// miserable advert. Read today's real bug lines and play a competent 2/3, which
-// is also the grid the spec uses as its example.
-const today = new Date().toISOString().slice(0, 10)
-const [{ challenge_ids: dailyIds }] = await fetch(
-  `${API}/rest/v1/daily_sets?day=eq.${today}&select=challenge_ids`,
-  { headers: { apikey: SERVICE, Authorization: `Bearer ${SERVICE}` } },
-).then((r) => r.json())
-
-const bugLines = Object.fromEntries(
-  (
-    await fetch(
-      `${API}/rest/v1/challenges?id=in.(${dailyIds.join(',')})&select=id,bug_line`,
-      { headers: { apikey: SERVICE, Authorization: `Bearer ${SERVICE}` } },
-    ).then((r) => r.json())
-  ).map((c) => [c.id, c.bug_line]),
-)
-
 await inFrame(`[...document.querySelectorAll('button')].find(b => b.textContent.includes("Play today")).click()`)
 await sleep(2800)
 await shoot('1-daily')
 
 /** Clicks the given 1-indexed line in the popup. */
-const clickLine = (n) => inFrame(`document.querySelectorAll('.code-line')[${n - 1}].click()`)
+const clickLine = (n) => inFrame(`document.querySelector('[data-line="${n}"]').click()`)
 
-/** The id of the snippet currently on screen, so we know which answer is right. */
-const currentId = () =>
-  inFrame(`
-    const el = document.querySelector('.chip--progress');
-    return window.__bugsyCurrent ?? null;
-  `)
+// Play a competent 2/3 — clicking blindly gave a 0/3 grid, a real playthrough and
+// a miserable advert. The one miss is deliberate: the result screenshot needs a
+// wrong pick to show BOTH the red line and the green one.
+//
+// Miss the snippet whose bug sits deepest. The reveal has to share a 600px popup
+// with the result card, so a bug on line 4 scrolls out of frame above the
+// explanation — and the screenshot then promises a reveal it does not show. A bug
+// near the bottom lands right next to the card. Miss its neighbour, so the red and
+// the green end up side by side.
+const missId = daily.reduce((a, b) => (b.bug_line > a.bug_line ? b : a)).id
 
-// Snippet 1: get it wrong, on purpose — the result screenshot needs a miss to
-// show BOTH the red line and the green one.
-const first = dailyIds[0]
-const firstBug = bugLines[first]
-await clickLine(firstBug === 1 ? 2 : 1)
-await sleep(1600)
+for (const [i, c] of daily.entries()) {
+  if (i > 0) {
+    await inFrame(`document.querySelector('.result .btn--primary').click()`)
+    await sleep(1800)
+  }
 
-// The caption promises an explanation, so the explanation had better be in the
-// frame. The reveal scrolls the bug line into view, which pushes the result card
-// below the fold — scroll back down to it.
-await inFrame(`
-  document.querySelector('.result')?.scrollIntoView({ block: 'end' });
-  return true;
-`)
-await sleep(700)
-await shoot('2-result')
+  const miss = c.id === missId
+  await clickLine(miss ? (c.bug_line === 1 ? 2 : c.bug_line - 1) : c.bug_line)
+  await sleep(1700)
 
-// Snippets 2 and 3: get them right. Final grid 🟥🟩🟩 — 2/3.
-for (const id of dailyIds.slice(1)) {
-  await inFrame(`document.querySelector('.result .btn--primary').click()`)
-  await sleep(1800)
-  await clickLine(bugLines[id])
-  await sleep(1800)
+  if (miss) {
+    await inFrame(`
+      document.querySelector('.result')?.scrollIntoView({ block: 'end' });
+      return true;
+    `)
+    await sleep(700)
+    await shoot('2-result')
+  }
 }
+
 await inFrame(`document.querySelector('.result .btn--primary').click()`)
 await sleep(1800)
 await shoot('3-summary')
 
 await inFrame(`document.querySelector('.summary .btn--ghost').click()`)
 await sleep(800)
-await inFrame(`[...document.querySelectorAll('button')].find(b => b.textContent.trim() === 'Leaderboard').click()`)
+await inFrame(`[...document.querySelectorAll('button')].find(b => b.textContent.includes('Leaderboard')).click()`)
 await sleep(2200)
 await shoot('4-leaderboard')
 
 await inFrame(`document.querySelector('.topbar__back').click()`)
 await sleep(700)
-await inFrame(`[...document.querySelectorAll('button')].find(b => b.textContent.trim() === 'Profile').click()`)
+await inFrame(`[...document.querySelectorAll('button')].find(b => b.textContent.includes('Profile')).click()`)
 await sleep(2200)
 await shoot('5-profile')
 
