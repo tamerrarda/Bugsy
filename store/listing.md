@@ -26,16 +26,17 @@ Developer Tools
 ```
 Bugsy is a daily debugging game that lives in your toolbar.
 
-Every day you get three short snippets of real-looking code — JavaScript or Python — and each one has exactly one bug in it. Your job is to click the line it's hiding on before the 60-second timer runs out. Get it right and Bugsy tells you why it was wrong; get it wrong and Bugsy tells you anyway. Either way you leave knowing something you didn't.
+Every day you get three short snippets of real-looking code, and each one has exactly one bug in it. Your job is to click the line it's hiding on before the 60-second timer runs out. Get it right and Bugsy tells you why it was wrong; get it wrong and Bugsy tells you anyway. Either way you leave knowing something you didn't.
 
-Everyone in the world gets the same three snippets each day, so you can argue about them.
+Pick the language you actually write — JavaScript, TypeScript, Python, Java, C#, C, C++ or Rust — or leave it on Mixed and take whatever comes. Everyone on your track gets the same three snippets each day, so you can argue about them.
 
 WHY YOU'LL KEEP COMING BACK
 • Streaks. Finish all three, keep the flame alive. Your streak sits on the toolbar icon, so you see it every time you open your browser.
 • It's kind about it. Completing the day is what counts, not getting them all right. A bad day won't cost you a 60-day streak.
-• Six badges to earn, from Rookie Hunter to Linus's Eye.
+• 31 badges to earn, from Day One to Polyglot — a bug squashed in all eight languages.
 • A daily, weekly and all-time leaderboard.
 • Share your result as a spoiler-free emoji grid. 🟩🟩🟥
+• 350 snippets, so Practice doesn't run dry.
 
 WHY IT'S ACTUALLY USEFUL
 Every single snippet comes with a written explanation of the bug: what the defect is, and what it actually does to the program at runtime. Not "line 3 is wrong" — but "slice's end index is exclusive, so the newest entry never appears in the feed."
