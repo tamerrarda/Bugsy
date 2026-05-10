@@ -2,7 +2,7 @@
   "name": "bugsy",
   "private": true,
   "type": "module",
-  "description": "Root marker only. Without it, tooling run from the repo root (tsx, esbuild) assumes CommonJS and rejects the top-level await in scripts/seed.ts — which made the `npx tsx scripts/seed.ts --check` command documented in CLAUDE.md fail outright. The extension has its own package.json; this one carries no dependencies.",
+  "description": "Root marker only. Without it, tooling run from the repo root (tsx, esbuild) assumes CommonJS and rejects the top-level await in scripts/seed.ts — which made the `npx tsx scripts/seed.ts --check` command documented in the README fail outright. The extension has its own package.json; this one carries no dependencies.",
   "scripts": {
     "content:check": "node scripts/seed.ts --check",
     "content:verify": "node scripts/verify-content.mjs",

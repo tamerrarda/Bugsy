@@ -1,4 +1,4 @@
--- Row Level Security. RLS is enabled on EVERY table (CLAUDE.md invariant).
+-- Row Level Security. RLS is enabled on EVERY table (BUGSY_SPEC.md invariant).
 --
 -- The service_role key used by the Edge Functions bypasses RLS by design; these
 -- policies govern what the extension's anon key can reach directly via PostgREST.

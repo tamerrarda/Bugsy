@@ -1,7 +1,7 @@
 -- The grading core (spec §5.4).
 --
 -- Why a database function and not just TypeScript in the Edge Function:
--- the spec and CLAUDE.md both require the attempt insert, the scoring and the
+-- the spec requires the attempt insert, the scoring and the
 -- streak update to happen in ONE transaction. A Deno function issuing several
 -- supabase-js calls is not a transaction — a crash between two of them leaves a
 -- scored attempt with no streak update, or vice versa. A plpgsql function is

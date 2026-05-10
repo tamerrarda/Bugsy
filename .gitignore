@@ -11,4 +11,7 @@ dist/
 # Generated from content/ by scripts/seed.ts --emit
 extension/src/generated/challenges.json
 
+# Local working notes, not part of the project.
+CLAUDE.md
+
 .DS_Store
