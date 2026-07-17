@@ -10,6 +10,8 @@
 
 **350 snippets · 8 languages · 31 badges.** Three fresh bugs every day, a streak that survives only if you keep showing up, and a leaderboard you can't game.
 
+**[▸ Add to Chrome](https://chromewebstore.google.com/detail/opdoaenpojahgghdbkopnhmdfmliogeo)** · [Play page](https://tamerrarda.github.io/Bugsy/) · [Privacy](https://tamerrarda.github.io/Bugsy/privacy.html)
+
 ## Try it in two minutes
 
 ```bash
