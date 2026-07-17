@@ -20,3 +20,9 @@ BUGSY_SPEC.md
 
 # Store upload artifact, built from extension/dist
 store/*.zip
+
+# Challenge answers — kept private even though the repo is public.
+# The scored bugLine + explanation live only in Postgres; publishing them here
+# would let anyone map challenge id -> answer and top the leaderboard.
+content/
+drivers/
