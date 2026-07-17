@@ -78,6 +78,9 @@ export function Profile({ profile, onShowAllBadges }: ProfileProps) {
 
   return (
     <div className="profile">
+      {/* Identity only: the player is the hero of this screen. Bugsy already
+          has his say in the weak-spot card below — two mascots in one viewport
+          were competing with the avatar for attention. */}
       <header className="profile__head">
         {profile.avatarUrl ? <img className="profile__avatar" src={profile.avatarUrl} alt="" /> : null}
         <div>
@@ -86,7 +89,6 @@ export function Profile({ profile, onShowAllBadges }: ProfileProps) {
             🍃 {earned} of {stats.badges.length} badges
           </p>
         </div>
-        <Bugsy mood="happy" size={54} className="profile__mascot" />
       </header>
 
       <div className="profile__stats">

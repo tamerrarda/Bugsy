@@ -3,6 +3,7 @@ import { LANGUAGES, LANGUAGE_LABEL } from '../types'
 import type { AttemptResult, DailySet, Language, PublicChallenge } from '../types'
 import { getProfile, signInWithGitHub, signOut, type AuthUser } from '../lib/auth'
 import { getApi } from '../lib/session'
+import { guestHasPractice, guestLanguages } from '../lib/localServer'
 import { cacheDailyStreak, markPlayedToday, notifyBadges } from '../lib/badge'
 import {
   getOnboarded,
@@ -18,6 +19,7 @@ import { fetchStreaks, liveDailyStreak } from '../lib/streaks'
 import { EMPTY_STATS, getHintSeen, getStats, markHintSeen, type LocalStats } from '../lib/storage'
 import { Bugsy } from '../components/Bugsy'
 import { GameBoard } from '../components/GameBoard'
+import { Garden } from '../components/Garden'
 import { Leaderboard } from '../components/Leaderboard'
 import { Onboarding } from '../components/Onboarding'
 import { Profile } from '../components/Profile'
@@ -141,19 +143,45 @@ export function App() {
 
   // ---------------- practice ----------------
 
+  // Guests play the small bundled pool, which covers a couple of languages and
+  // not every difficulty. The filters must only offer what that pool can serve
+  // — an option that matches nothing dead-ends in an error screen, the same
+  // rudeness TrackPicker exists to avoid. Signed-in players get the full list.
+  const guestPool = profile === null ? guestLanguages() : null
+
+  const languageOptions = guestPool
+    ? LANGUAGE_FILTERS.filter(({ value }) => value === 'all' || guestPool.includes(value))
+    : LANGUAGE_FILTERS
+
+  // A signed-in preference (say Rust) outlives the session that set it. As a
+  // guest it may match nothing — play "all" rather than serving the error, and
+  // let the stored preference resurface on the next sign-in.
+  const effectiveLanguage =
+    guestPool && language !== 'all' && !guestPool.includes(language) ? 'all' : language
+
+  const difficultyAvailable = (value: DifficultyPreference): boolean =>
+    guestPool === null ||
+    value === 'all' ||
+    guestHasPractice({
+      ...(effectiveLanguage === 'all' ? {} : { language: effectiveLanguage }),
+      difficulty: value,
+    })
+
+  const effectiveDifficulty = difficultyAvailable(difficulty) ? difficulty : 'all'
+
   const playPractice = useCallback(async () => {
     setScreen({ name: 'loading' })
     try {
       const api = await getApi()
       const challenge = await api.getPractice({
-        ...(language === 'all' ? {} : { language }),
-        ...(difficulty === 'all' ? {} : { difficulty }),
+        ...(effectiveLanguage === 'all' ? {} : { language: effectiveLanguage }),
+        ...(effectiveDifficulty === 'all' ? {} : { difficulty: effectiveDifficulty }),
       })
       setScreen({ name: 'practice', challenge })
     } catch (error) {
       fail(messageFor(error))
     }
-  }, [language, difficulty, fail])
+  }, [effectiveLanguage, effectiveDifficulty, fail])
 
   // ---------------- daily ----------------
 
@@ -479,93 +507,106 @@ export function App() {
         </div>
       ) : null}
 
+      {/* The home screen is built on hierarchy, not inventory: one hero (Bugsy
+          in his garden), one dominant action, and everything else either
+          compressed into a strip or parked quietly at the bottom. The garden
+          needs open space to be seen at all — crowding it with equal-weight
+          boxes was how the old home lost both the scenery and the CTA. */}
       <div className="home">
-        <div className="home__crest">
-          <Bugsy mood={dailyStreak > 0 || stats.accuracyCurrent > 0 ? 'happy' : 'sleeping'} size={84} />
+        <div className="home__hero">
+          <Bugsy mood={dailyStreak > 0 || stats.accuracyCurrent > 0 ? 'happy' : 'sleeping'} size={96} />
           <div className="home__sign">
             <h1 className="home__title">Bugsy</h1>
           </div>
+          <p className="home__tagline">One bug per snippet. Find it before the timer does.</p>
         </div>
 
-        <p className="home__tagline">One bug per snippet. Find it before the timer does.</p>
-
-        <div className="home__stats">
-          <Stat icon="🔥" label="daily" value={dailyStreak} />
-          <Stat icon="⭐" label="streak" value={stats.accuracyCurrent} />
-          <Stat icon="👑" label="best" value={stats.accuracyBest} />
+        {/* All three numbers in one slim strip. Three separate boxes gave the
+            scoreboard the same visual rank as the play button; a strip states
+            the facts and steps aside. Guests see no "daily" — they can't have one. */}
+        <div className="statbar" role="group" aria-label="Your streaks">
+          {profile ? (
+            <>
+              <StatItem icon="🔥" label="daily" value={dailyStreak} />
+              <span className="statbar__divider" aria-hidden="true" />
+            </>
+          ) : null}
+          <StatItem icon="⭐" label="streak" value={stats.accuracyCurrent} />
+          <span className="statbar__divider" aria-hidden="true" />
+          <StatItem icon="👑" label="best" value={stats.accuracyBest} />
         </div>
 
-        {profile ? (
+        <div className="home__actions">
+          {profile ? (
+            <button
+              type="button"
+              className="btn btn--primary btn--block"
+              onClick={startDaily}
+            >
+              Play today&rsquo;s challenge
+              <span className="btn__arrow" aria-hidden="true">❯</span>
+            </button>
+          ) : null}
+
           <button
             type="button"
-            className="btn btn--primary btn--block"
-            onClick={startDaily}
+            className={`btn btn--block ${profile ? 'btn--practice' : 'btn--primary'}`}
+            onClick={() => void playPractice()}
           >
-            Play today&rsquo;s challenge
+            <span className="btn__leaf" aria-hidden="true">🌱</span>
+            Practice
             <span className="btn__arrow" aria-hidden="true">❯</span>
           </button>
-        ) : null}
 
-        {/* Practice filters. Both were already honoured end to end — the server
-            takes language and difficulty, and so does the guest pool; only the UI
-            had never surfaced difficulty. */}
-        <div className="filters">
-          {/* A native <select>, not a hand-rolled menu. Nine languages as chips ate
-              two rows and pushed Practice toward the fold; a dropdown costs one
-              line. Native also means keyboard and screen-reader behaviour arrive
-              for free — a custom popup would have had to reimplement both, badly.
+          {/* Practice's own options, directly under Practice — filters mid-stack
+              between the two buttons made them read as a third, unrelated thing.
 
-              The options come from LANGUAGES. They were once a hand-written
-              ['all', 'javascript', 'python'], which went quietly stale the day the
-              other six languages shipped: the content was there, the filter was not. */}
-          <label className="select">
-            <span className="select__icon" aria-hidden="true">
-              🌿
-            </span>
-            <select
-              className="select__field"
-              value={language}
-              aria-label="Practice language"
-              onChange={(event) => chooseLanguage(event.target.value as LanguageFilter)}
-            >
-              {LANGUAGE_FILTERS.map(({ value, label }) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
-            <span className="select__caret" aria-hidden="true">
-              ▾
-            </span>
-          </label>
-
-          <div className="chips">
-            {DIFFICULTY_OPTIONS.map(({ value, label }) => (
-              <button
-                key={value}
-                type="button"
-                className={`chip chip--button ${difficulty === value ? 'chip--active' : ''}`}
-                onClick={() => chooseDifficulty(value)}
+              A native <select>, not a hand-rolled menu: keyboard and screen-reader
+              behaviour arrive for free. The options come from LANGUAGES —
+              narrowed, for guests, to what the bundled pool actually holds. */}
+          <div className="filters">
+            <label className="select">
+              <span className="select__icon" aria-hidden="true">
+                🌿
+              </span>
+              <select
+                className="select__field"
+                value={effectiveLanguage}
+                aria-label="Practice language"
+                onChange={(event) => chooseLanguage(event.target.value as LanguageFilter)}
               >
-                {label}
-              </button>
-            ))}
+                {languageOptions.map(({ value, label }) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+              <span className="select__caret" aria-hidden="true">
+                ▾
+              </span>
+            </label>
+
+            <div className="chips">
+              {DIFFICULTY_OPTIONS.map(({ value, label }) => (
+                <button
+                  key={value}
+                  type="button"
+                  className={`chip chip--button ${effectiveDifficulty === value ? 'chip--active' : ''}`}
+                  disabled={!difficultyAvailable(value)}
+                  onClick={() => chooseDifficulty(value)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
-        <button
-          type="button"
-          className={`btn btn--block ${profile ? 'btn--practice' : 'btn--primary'}`}
-          onClick={() => void playPractice()}
-        >
-          <span className="btn__leaf" aria-hidden="true">🌱</span>
-          Practice
-          <span className="btn__arrow" aria-hidden="true">❯</span>
-        </button>
-
         {profile ? (
-          <>
-            <nav className="home__nav">
+          <div className="home__foot">
+            {/* Quiet icon row, not three more boxes: navigation is a hallway,
+                not a destination. */}
+            <nav className="home__nav" aria-label="Sections">
               <button type="button" onClick={() => setScreen({ name: 'leaderboard' })}>
                 <span className="nav__icon" aria-hidden="true">🏆</span>
                 Leaderboard
@@ -589,9 +630,9 @@ export function App() {
                 sign out
               </button>
             </div>
-          </>
+          </div>
         ) : (
-          <>
+          <div className="home__foot">
             <p className="guest-note">
               You&rsquo;re playing as a guest on a handful of snippets. Sign in for the daily
               challenge, the full set, points and the leaderboard.
@@ -604,24 +645,22 @@ export function App() {
             >
               {authBusy ? 'Waiting for GitHub…' : 'Sign in with GitHub'}
             </button>
-          </>
+          </div>
         )}
       </div>
     </Shell>
   )
 }
 
-function Stat({ icon, label, value }: { icon: string; label: string; value: number | string }) {
+function StatItem({ icon, label, value }: { icon: string; label: string; value: number | string }) {
   return (
-    <div className="stat">
-      <span className="stat__row">
-        <span className="stat__icon" aria-hidden="true">
-          {icon}
-        </span>
-        <span className="stat__value">{value}</span>
+    <span className="statbar__item">
+      <span className="statbar__icon" aria-hidden="true">
+        {icon}
       </span>
-      <span className="stat__label">{label}</span>
-    </div>
+      <span className="statbar__value">{value}</span>
+      <span className="statbar__label">{label}</span>
+    </span>
   )
 }
 
@@ -636,7 +675,7 @@ function Shell({
 }) {
   return (
     <main className="shell">
-      <div className="garden" aria-hidden="true" />
+      <Garden />
       {onBack ? (
         <div className="topbar">
           <button type="button" className="topbar__back" onClick={onBack}>
