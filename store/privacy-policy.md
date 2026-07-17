@@ -1,6 +1,6 @@
 # Bugsy — Privacy Policy
 
-_Last updated: 13 July 2026_
+_Last updated: 18 July 2026_
 
 Bugsy is a browser game. It shows you code snippets and you click the buggy line. This page says exactly what it stores, why, and what it does not touch.
 
@@ -39,7 +39,7 @@ Bugsy asks for no host permissions beyond its own backend. It cannot see any web
 
 ## Deleting your data
 
-Ask, and it is deleted — profile, attempts, streaks, badges, all of it. Email **privacy@bugsy.dev**. There is no dark pattern here and no waiting period.
+Ask, and it is deleted — profile, attempts, streaks, badges, all of it. Email **tamerarda16860@gmail.com**. There is no dark pattern here and no waiting period.
 
 Signing out just ends the session on your machine; it does not delete anything on the server. Say so explicitly if that is what you want.
 
@@ -57,4 +57,4 @@ If this policy changes in a way that affects what is collected, the extension wi
 
 ## Contact
 
-**privacy@bugsy.dev**
+**tamerarda16860@gmail.com**

@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bugsy — Spot the Bug</title>
+<meta name="description" content="Wordle for debugging. Three code snippets a day, one bug each. Find it before the timer does.">
+<style>
+  :root {
+    --ink: #5a3d24; --ink-soft: #9b7d5e; --card: #fdf7e8; --card-line: #e3cfa8;
+    --orange: #f2853c; --orange-deep: #e0682a;
+    --sans: 'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 32px 20px;
+    background: radial-gradient(1100px 640px at 50% -10%, #f3f2d9 0%, #e8f0c4 45%, #d7ecab 100%);
+    background-attachment: fixed;
+    color: var(--ink);
+    font-family: var(--sans);
+    -webkit-font-smoothing: antialiased;
+    text-align: center;
+  }
+  .card {
+    max-width: 460px;
+    background: var(--card);
+    border: 2px solid var(--card-line);
+    border-radius: 22px;
+    padding: 34px 30px 30px;
+    box-shadow: 0 8px 0 rgba(139, 94, 60, 0.12);
+  }
+  .mascot { font-size: 68px; line-height: 1; }
+  h1 { margin: 10px 0 4px; font-size: 38px; font-weight: 800; letter-spacing: -0.01em; }
+  .tag { margin: 0 0 22px; color: var(--ink-soft); font-size: 16px; line-height: 1.5; font-weight: 700; }
+  .cta {
+    display: inline-block;
+    padding: 13px 24px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #f79b52 0%, #f0803a 48%, var(--orange-deep) 100%);
+    color: #fff;
+    font-size: 17px;
+    font-weight: 800;
+    text-decoration: none;
+    box-shadow: inset 0 2px 0 rgba(255,255,255,.5), 0 4px 0 #b9541d;
+  }
+  .cta:active { transform: translateY(2px); box-shadow: inset 0 2px 0 rgba(255,255,255,.4), 0 2px 0 #b9541d; }
+  .links { margin-top: 20px; font-size: 14px; font-weight: 800; }
+  .links a { color: var(--ink-soft); text-decoration: none; }
+  .links a:hover { color: var(--ink); text-decoration: underline; }
+  .dot { color: var(--card-line); margin: 0 8px; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink: #f3e7d3; --ink-soft: #c3ab8c; --card: #33281d; --card-line: #52412e; }
+    body { background: radial-gradient(1100px 640px at 50% -10%, #2a2f22 0%, #23281c 55%, #1c2016 100%); }
+  }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="mascot" aria-hidden="true">🐛</div>
+    <h1>Bugsy</h1>
+    <p class="tag">Wordle for debugging. Three code snippets a day, one bug each. Find it before the timer does.</p>
+    <a class="cta" href="https://chromewebstore.google.com/detail/dicfbglngpfejbakehloabhomdgijmmp">Add to Chrome</a>
+    <p class="links">
+      <a href="./privacy.html">Privacy</a>
+      <span class="dot" aria-hidden="true">•</span>
+      <a href="https://github.com/tamerrarda/Bugsy">GitHub</a>
+    </p>
+  </div>
+</body>
+</html>

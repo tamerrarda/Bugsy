@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bugsy — Privacy Policy</title>
+<meta name="description" content="What the Bugsy Chrome extension stores, why, and what it never touches.">
+<style>
+  :root {
+    --ink: #5a3d24;
+    --ink-soft: #9b7d5e;
+    --cream: #fbf1dc;
+    --card: #fdf7e8;
+    --card-line: #e3cfa8;
+    --orange: #f2853c;
+    --green-ink: #4e7a1f;
+    --green-wash: #eaf5d5;
+    --sans: 'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background:
+      radial-gradient(1200px 700px at 50% -10%, #f3f2d9 0%, #e8f0c4 45%, #d7ecab 100%);
+    background-attachment: fixed;
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+  .wrap {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 40px 20px 64px;
+  }
+  header.hero {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 8px;
+  }
+  .badge {
+    width: 52px; height: 52px;
+    flex: 0 0 auto;
+    display: grid; place-items: center;
+    font-size: 30px;
+    background: linear-gradient(180deg, #fff6e0 0%, var(--card) 100%);
+    border: 2px solid var(--card-line);
+    border-radius: 16px;
+    box-shadow: 0 3px 0 rgba(139, 94, 60, 0.14);
+  }
+  h1 {
+    margin: 0;
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+  .updated {
+    margin: 2px 0 26px;
+    color: var(--ink-soft);
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .card {
+    background: var(--card);
+    border: 2px solid var(--card-line);
+    border-radius: 18px;
+    padding: 20px 22px;
+    margin: 0 0 16px;
+    box-shadow: 0 4px 0 rgba(139, 94, 60, 0.10);
+  }
+  .lede { font-size: 17px; }
+  h2 {
+    margin: 4px 0 10px;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--ink);
+  }
+  p { margin: 0 0 12px; }
+  p:last-child { margin-bottom: 0; }
+  a { color: var(--orange); font-weight: 800; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  ul { margin: 0; padding-left: 20px; }
+  li { margin: 0 0 8px; }
+  li:last-child { margin-bottom: 0; }
+  strong { color: var(--ink); }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14.5px;
+  }
+  th, td {
+    text-align: left;
+    padding: 9px 10px;
+    border-bottom: 1px solid var(--card-line);
+    vertical-align: top;
+  }
+  th { color: var(--green-ink); font-weight: 800; }
+  tr:last-child td { border-bottom: 0; }
+  .perm { color: var(--green-ink); font-weight: 800; }
+  .note {
+    background: var(--green-wash);
+    border-left: 4px solid #86b73f;
+    border-radius: 6px 14px 14px 6px;
+    padding: 14px 16px;
+    color: #3f5a24;
+    font-size: 15px;
+  }
+  footer {
+    margin-top: 26px;
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 13px;
+    font-weight: 700;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #f3e7d3;
+      --ink-soft: #c3ab8c;
+      --card: #33281d;
+      --card-line: #52412e;
+      --green-ink: #a7d06a;
+      --green-wash: #2c3a1c;
+    }
+    body {
+      background:
+        radial-gradient(1200px 700px at 50% -10%, #2a2f22 0%, #23281c 55%, #1c2016 100%);
+    }
+    .badge { background: linear-gradient(180deg, #3d3020 0%, var(--card) 100%); }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <span class="badge" aria-hidden="true">🐛</span>
+      <div>
+        <h1>Bugsy — Privacy Policy</h1>
+      </div>
+    </header>
+    <p class="updated">Last updated: 18 July 2026</p>
+
+    <div class="card">
+      <p class="lede">Bugsy is a browser game. It shows you code snippets and you click the buggy line. This page says exactly what it stores, why, and what it does not touch.</p>
+    </div>
+
+    <div class="card">
+      <h2>What Bugsy stores</h2>
+      <p>Only if you sign in with GitHub:</p>
+      <table>
+        <thead>
+          <tr><th>Data</th><th>Why</th><th>Where</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>GitHub username</td><td>To put a name next to your score on the leaderboard</td><td>Supabase (Postgres)</td></tr>
+          <tr><td>GitHub avatar URL</td><td>To put a face next to it</td><td>Supabase</td></tr>
+          <tr><td>Your attempts (which line you clicked, whether it was right, how long it took, points)</td><td>To score you, keep your streak, and rank you</td><td>Supabase</td></tr>
+          <tr><td>Streaks and badges</td><td>The game</td><td>Supabase</td></tr>
+        </tbody>
+      </table>
+      <p style="margin-top:14px">If you <strong>don't</strong> sign in, Bugsy stores nothing about you anywhere. Guest mode keeps a practice streak in your own browser, and that never leaves your machine.</p>
+    </div>
+
+    <div class="card">
+      <h2>What Bugsy does not do</h2>
+      <ul>
+        <li><strong>It does not read the pages you visit.</strong> Bugsy has no content scripts and no access to your tabs, your history, or anything on any website. The code snippets are Bugsy's own; they come from our server, not from your browser.</li>
+        <li><strong>It does not read your code.</strong> Bugsy has never seen a line you wrote.</li>
+        <li><strong>It does not track you.</strong> No analytics, no advertising, no third-party trackers, no fingerprinting.</li>
+        <li><strong>It does not sell or share your data.</strong> With anyone, for any purpose.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Permissions, and why each one exists</h2>
+      <ul>
+        <li><span class="perm">storage</span> — remembers your session, your settings, and your guest practice streak.</li>
+        <li><span class="perm">alarms</span> — checks once an hour whether a new day's challenge has started.</li>
+        <li><span class="perm">notifications</span> — the daily reminder, and a badge-earned pop-up. Both can be turned off in Settings.</li>
+        <li><span class="perm">identity</span> — signing in with GitHub. This opens GitHub's own login window; Bugsy never sees your GitHub password.</li>
+      </ul>
+      <p style="margin-top:12px">Bugsy asks for no host permissions beyond its own backend. It cannot see any website you visit.</p>
+    </div>
+
+    <div class="card">
+      <h2>Deleting your data</h2>
+      <p class="note">Ask, and it is deleted — profile, attempts, streaks, badges, all of it. Email <a href="mailto:tamerarda16860@gmail.com">tamerarda16860@gmail.com</a>. There is no dark pattern here and no waiting period.</p>
+      <p style="margin-top:12px">Signing out just ends the session on your machine; it does not delete anything on the server. Say so explicitly if that is what you want.</p>
+    </div>
+
+    <div class="card">
+      <h2>Where the data lives</h2>
+      <p>Supabase (Postgres), hosted in the EU. Access is locked down with row-level security: your attempts, streaks and badges are readable only by you. The leaderboard exposes exactly four fields — username, avatar, points, rank — and nothing else.</p>
+    </div>
+
+    <div class="card">
+      <h2>Children</h2>
+      <p>Bugsy is aimed at developers and is not directed at children under 13.</p>
+    </div>
+
+    <div class="card">
+      <h2>Changes</h2>
+      <p>If this policy changes in a way that affects what is collected, the extension will say so before the change takes effect.</p>
+    </div>
+
+    <div class="card">
+      <h2>Contact</h2>
+      <p><a href="mailto:tamerarda16860@gmail.com">tamerarda16860@gmail.com</a></p>
+    </div>
+
+    <footer>🐛 Bugsy — Spot the Bug</footer>
+  </div>
+</body>
+</html>

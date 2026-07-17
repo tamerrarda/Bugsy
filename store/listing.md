@@ -75,7 +75,7 @@ Generated from the real popup by `node scripts/store-shots.mjs`:
   - `host_permissions` — the Supabase backend only, to fetch challenges and submit attempts.
 - **Remote code:** No. Everything executable ships in the package.
 - **Data usage:** Collects "Authentication information" (GitHub identity) and "Website content"? **No** — Bugsy has no access to any website. It collects only the account identifier and gameplay results.
-- **Privacy policy URL:** the published URL of `store/privacy-policy.md`.
+- **Privacy policy URL:** https://tamerrarda.github.io/Bugsy/privacy.html
 
 ## Launch posts
 
