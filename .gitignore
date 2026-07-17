@@ -16,3 +16,7 @@ CLAUDE.md
 BUGSY_SPEC.md
 
 .DS_Store
+.env.production
+
+# Store upload artifact, built from extension/dist
+store/*.zip
