@@ -162,7 +162,21 @@ for (const c of pool.filter((c) => !history.includes(c) && !daily.includes(c)).s
 // The backdrop wears the same clothes as the product: Bugsy's garden, the warm
 // palette from popup.css, Baloo for the headline. A dark, techy slide holding a
 // storybook popup reads as two different products in one image.
-const SHELL = `
+// Two shells, two passes. An <iframe> rendered as a sub-region of the 1280×800
+// backdrop composites with a translucent layer in headless capture — the cards
+// let the garden bleed through, unreadably (the leaderboard and profile, most).
+// The same popup captured ALONE at 400×600 is flawless. So: pass 1 drives and
+// captures the popup by itself; pass 2 drops those finished PNGs onto the
+// branded backdrop as a plain <img>, which cannot composite wrong.
+
+/** Pass 1: the popup alone, filling a 400×600 viewport. Driven, then captured raw. */
+const RAW_SHELL = `<!doctype html><meta charset="utf-8">
+<style>html,body{margin:0;width:400px;height:600px;overflow:hidden}
+iframe{width:400px;height:600px;border:0;display:block}</style>
+<iframe id="bugsy-frame" src="/index.html"></iframe>`
+
+/** Pass 2: the branded 1280×800 backdrop, popup supplied as a finished image. */
+const BRAND_SHELL = `
 <!doctype html><meta charset="utf-8">
 <style>
   @font-face{font-family:'Baloo';src:url('/fonts/baloo2.woff2') format('woff2');font-weight:700 800;font-display:block}
@@ -180,7 +194,7 @@ const SHELL = `
   p{margin:18px 0 0;font-size:21px;line-height:1.5;color:#9b7d5e;font-weight:600}
   .frame{width:400px;height:600px;border-radius:22px;overflow:hidden;
     border:3px solid #e3cfa8;box-shadow:0 34px 70px rgba(90,61,36,.28)}
-  iframe{width:400px;height:600px;border:0;display:block}
+  #shot{width:400px;height:600px;display:block}
   .mark{position:absolute;z-index:2;top:38px;left:54px;display:flex;align-items:center;gap:11px;
     font-family:'Baloo',cursive;font-weight:800;font-size:24px;color:#5a3d24}
   .mark img{width:36px;height:36px}
@@ -188,7 +202,7 @@ const SHELL = `
 <div class="mark"><img src="/mascot/bugsy-happy.png"><span>Bugsy</span></div>
 <div class="wrap">
   <div class="copy"><h1 id="cap-title"></h1><p id="cap-sub"></p></div>
-  <div class="frame"><iframe id="bugsy-frame" src="/index.html"></iframe></div>
+  <div class="frame"><img id="shot" alt=""></div>
 </div>
 `
 
@@ -200,9 +214,14 @@ const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css
 const server = createServer(async (req, res) => {
   const path = req.url.split('?')[0]
 
-  if (path === '/shell.html') {
+  if (path === '/raw.html') {
     res.writeHead(200, { 'Content-Type': 'text/html' })
-    res.end(SHELL)
+    res.end(RAW_SHELL)
+    return
+  }
+  if (path === '/brand.html') {
+    res.writeHead(200, { 'Content-Type': 'text/html' })
+    res.end(BRAND_SHELL)
     return
   }
 
@@ -256,9 +275,9 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 await send('Page.enable')
 await send('Runtime.enable')
 
-// Store screenshots are 1280×800. Frame the 400×600 popup inside a branded
-// backdrop at that size rather than upscaling it into a blurry mess.
-await send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 800, deviceScaleFactor: 1, mobile: false })
+// Pass 1 renders the popup alone at 400×600, at 2× so the downscale in pass 2
+// supersamples rather than blurs.
+await send('Emulation.setDeviceMetricsOverride', { width: 400, height: 600, deviceScaleFactor: 2, mobile: false })
 
 await send('Page.addScriptToEvaluateOnNewDocument', {
   source: `
@@ -280,6 +299,17 @@ await send('Page.addScriptToEvaluateOnNewDocument', {
       action: { setBadgeText: async () => {}, setBadgeBackgroundColor: async () => {} },
       identity: { getRedirectURL: () => 'https://x.chromiumapp.org/' },
     };
+
+    // A screenshot wants the SETTLED frame, never a frame of the entrance
+    // animation. sprout-in / result-pop animate opacity+transform, which gives
+    // the container its own compositing layer — and headless capture has been
+    // seen to grab that layer with residual opacity, veiling the card so the
+    // garden bleeds through (the leaderboard and profile shots, specifically).
+    // Kill the entrances for the capture; the ambient garden keeps moving.
+    const st = document.createElement('style');
+    st.textContent =
+      '.home,.board,.profile,.settings,.tour,.tracks,.summary,.catalogue,.center,.result,.result__badges .badge-pill{animation:none !important;opacity:1 !important;transform:none !important}';
+    document.documentElement.appendChild(st);
   `,
 })
 
@@ -291,28 +321,18 @@ const CAPTION = {
   '5-profile': ['Thirty-one badges.', 'And a streak worth keeping.'],
 }
 
-/** Frames the popup iframe on a branded 1280×800 backdrop and shoots it. */
+// Pass 1 fills this with { name: rawPngBase64 } — the popup alone, 800×1200.
+const raw = {}
+
+/** Captures the popup by itself (the current 400×600 viewport). */
 async function shoot(name) {
-  const [title, sub] = CAPTION[name]
-  await evaluate(`
-    (() => {
-      const f = document.getElementById('bugsy-frame');
-      const t = document.getElementById('cap-title');
-      const s = document.getElementById('cap-sub');
-      if (t) t.textContent = ${JSON.stringify(title)};
-      if (s) s.textContent = ${JSON.stringify(sub)};
-      return !!f;
-    })()
-  `)
   await sleep(400)
   const { data } = await send('Page.captureScreenshot', { format: 'png' })
-  writeFileSync(join(OUT, `${name}.png`), Buffer.from(data, 'base64'))
-  console.log(`→ store/screenshots/${name}.png`)
+  raw[name] = data
+  console.log(`  · captured ${name}`)
 }
 
-
-
-await send('Page.navigate', { url: `http://127.0.0.1:${PORT}/shell.html` })
+await send('Page.navigate', { url: `http://127.0.0.1:${PORT}/raw.html` })
 await sleep(2500)
 
 // Drive the popup INSIDE the iframe.
@@ -323,6 +343,21 @@ const inFrame = async (expr) =>
     return await (async (document, window) => { ${expr} })(d, w);
   })()`)
 
+/**
+ * Waits for a predicate against the iframe to hold, polling. The home screen's
+ * "Play today" button only appears AFTER getProfile() resolves against the
+ * backend — a fixed sleep raced that fetch and clicked before the button
+ * existed, which broke the run the day the popup got heavier. Poll instead.
+ */
+async function waitInFrame(expr, { tries = 40, every = 150 } = {}) {
+  for (let i = 0; i < tries; i++) {
+    if (await inFrame(`return (${expr})`)) return
+    await sleep(every)
+  }
+  throw new Error(`waitInFrame timed out: ${expr}`)
+}
+
+await waitInFrame(`[...document.querySelectorAll('button')].some(b => b.textContent.includes("Play today"))`)
 await inFrame(`[...document.querySelectorAll('button')].find(b => b.textContent.includes("Play today")).click()`)
 await sleep(2800)
 await shoot('1-daily')
@@ -376,5 +411,29 @@ await sleep(700)
 await inFrame(`[...document.querySelectorAll('button')].find(b => b.textContent.includes('Profile')).click()`)
 await sleep(2200)
 await shoot('5-profile')
+
+// ---- Pass 2: composite each finished popup onto the branded backdrop ----
+await send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 800, deviceScaleFactor: 1, mobile: false })
+await send('Page.navigate', { url: `http://127.0.0.1:${PORT}/brand.html` })
+await sleep(1200) // let the backdrop fonts + garden.webp paint once
+
+for (const [name, data] of Object.entries(raw)) {
+  const [title, sub] = CAPTION[name]
+  // Set the popup image and the caption, then wait for the <img> to decode so we
+  // never capture an empty frame.
+  await evaluate(`
+    (async () => {
+      document.getElementById('cap-title').textContent = ${JSON.stringify(title)};
+      document.getElementById('cap-sub').textContent = ${JSON.stringify(sub)};
+      const img = document.getElementById('shot');
+      img.src = 'data:image/png;base64,${data}';
+      await img.decode().catch(() => {});
+    })()
+  `)
+  await sleep(250)
+  const { data: framed } = await send('Page.captureScreenshot', { format: 'png' })
+  writeFileSync(join(OUT, `${name}.png`), Buffer.from(framed, 'base64'))
+  console.log(`→ store/screenshots/${name}.png`)
+}
 
 ws.close(); chrome.kill(); server.close(); process.exit(0)
