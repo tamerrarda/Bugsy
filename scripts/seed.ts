@@ -11,7 +11,7 @@
  * Zero dependencies on purpose — it runs in CI and in npm pre-hooks, and Node 22
  * strips the types natively. `npx tsx scripts/seed.ts` works too.
  */
-import { readdirSync, readFileSync, mkdirSync, writeFileSync, statSync } from 'node:fs'
+import { readdirSync, readFileSync, mkdirSync, writeFileSync, statSync, existsSync } from 'node:fs'
 import { join, relative, dirname, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { validateChallenge } from './validate.ts'
@@ -201,6 +201,32 @@ async function main(): Promise<void> {
   const args = process.argv.slice(2)
   const check = args.includes('--check')
   const emit = args.includes('--emit')
+
+  // content/ (the challenge answers) is kept OUT of the public repo — publishing
+  // bugLine for every snippet would let anyone top the leaderboard. A fresh
+  // clone therefore has no content/ to build from, and the pre-dev/build/test
+  // hooks call this with --emit. In that case the committed guest bundle
+  // (extension/src/generated/challenges.json) is already what the extension
+  // needs, so skip rather than crash. Seeding the DB, which genuinely needs the
+  // content, still fails loudly.
+  if (!existsSync(CONTENT_DIR)) {
+    if (emit && existsSync(EMIT_PATH)) {
+      console.log(
+        'content/ is not present (kept private); using the committed guest bundle at\n' +
+          `  ${relative(ROOT, EMIT_PATH)}`,
+      )
+      return
+    }
+    if (check) {
+      console.log('content/ is not present (kept private); nothing to validate.')
+      return
+    }
+    console.error(
+      '\ncontent/ is not present. The challenge answers are private and are not in\n' +
+        'this repository. Seeding the database needs them; ask the maintainer.',
+    )
+    process.exit(1)
+  }
 
   const files = walk(CONTENT_DIR).sort()
   const seenIds = new Map<string, string>()

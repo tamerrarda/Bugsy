@@ -8,8 +8,6 @@ dist/
 # manifest.json ("key"); this file must never be committed or shipped.
 .keys/
 
-# Generated from content/ by scripts/seed.ts --emit
-extension/src/generated/challenges.json
 
 # Local working notes, not part of the project.
 CLAUDE.md

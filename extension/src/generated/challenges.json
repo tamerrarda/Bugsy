@@ -1,0 +1,57 @@
+[
+  {
+    "id": "39f0853c-39af-4284-a0eb-b18f6946d832",
+    "language": "javascript",
+    "difficulty": 2,
+    "category": "async",
+    "code": "async function fetchUser(id) {\n  const response = await fetch(`/api/users/${id}`);\n  return response.json();\n}\n\nasync function loadDashboard(userId) {\n  const user = fetchUser(userId);\n  const widgets = await fetchWidgets(userId);\n\n  return {\n    title: `${user.name}'s dashboard`,\n    widgets,\n  };\n}\n\nasync function fetchWidgets(userId) {\n  const response = await fetch(`/api/widgets?user=${userId}`);\n  return response.json();\n}",
+    "bugLine": 7,
+    "explanation": "Missing await: fetchUser returns a Promise, so user is the Promise itself rather than the resolved object. user.name is undefined, and the title renders as \"undefined's dashboard\" instead of throwing anywhere near the mistake.",
+    "source": "handwritten",
+    "active": true
+  },
+  {
+    "id": "fb8fd96f-5f3b-4cf6-b241-879dce319cfe",
+    "language": "javascript",
+    "difficulty": 1,
+    "category": "off-by-one",
+    "code": "function recentEntries(entries, count) {\n  const start = Math.max(0, entries.length - count);\n  return entries.slice(start, entries.length - 1);\n}\n\nfunction formatEntry(entry) {\n  return `${entry.date}: ${entry.title}`;\n}\n\nfunction buildFeed(entries, count) {\n  const recent = recentEntries(entries, count);\n\n  return {\n    lines: recent.map(formatEntry),\n    shown: recent.length,\n    total: entries.length,\n  };\n}",
+    "bugLine": 3,
+    "explanation": "Off-by-one: slice's end index is exclusive, so passing entries.length - 1 stops one element early. Asking for the 3 most recent entries returns only 2, and the newest entry never appears in the feed at all.",
+    "source": "handwritten",
+    "active": true
+  },
+  {
+    "id": "8836794d-216d-44dc-becd-e49cba6ff2e8",
+    "language": "javascript",
+    "difficulty": 1,
+    "category": "wrong-operator",
+    "code": "function getDisplayName(user) {\n  if (user.nickname || user.nickname.length > 0) {\n    return user.nickname;\n  }\n  if (user.fullName) {\n    return user.fullName;\n  }\n  return user.email.split(\"@\")[0];\n}\n\nfunction renderGreeting(user) {\n  const name = getDisplayName(user);\n  return `Welcome back, ${name}`;\n}",
+    "bugLine": 2,
+    "explanation": "Wrong operator: this needs &&, not ||. When nickname is undefined the left side is falsy, so || evaluates the right side and reads .length off undefined, throwing a TypeError for exactly the users the check was meant to protect.",
+    "source": "handwritten",
+    "active": true
+  },
+  {
+    "id": "a5c5b4e6-05a8-44ee-a158-cb9b9cec194c",
+    "language": "python",
+    "difficulty": 3,
+    "category": "logic",
+    "code": "import time\n\n\ndef should_retry(response, attempt, max_attempts):\n    if attempt >= max_attempts:\n        return False\n    return response.status_code < 500\n\n\ndef backoff_seconds(attempt):\n    return min(2 ** attempt, 30)\n\n\ndef fetch_with_retry(client, url, max_attempts=3):\n    attempt = 0\n    while True:\n        response = client.get(url)\n        if not should_retry(response, attempt, max_attempts):\n            return response\n        time.sleep(backoff_seconds(attempt))\n        attempt += 1",
+    "bugLine": 7,
+    "explanation": "Inverted condition: retries are meant for server-side failures (5xx), but this retries everything below 500 instead. A 404 gets retried until the attempt cap while a 503, the one case a retry would actually fix, returns immediately.",
+    "source": "handwritten",
+    "active": true
+  },
+  {
+    "id": "70774936-6f96-4b2e-a490-59c71ee8bd45",
+    "language": "python",
+    "difficulty": 1,
+    "category": "null-undefined",
+    "code": "def get_primary_email(user):\n    contact = user.get(\"contact\")\n    return contact[\"email\"].lower()\n\n\ndef format_recipient(user):\n    email = get_primary_email(user)\n    name = user.get(\"name\", \"there\")\n    return f\"{name} <{email}>\"\n\n\ndef build_recipients(users):\n    recipients = []\n    for user in users:\n        recipients.append(format_recipient(user))\n    return recipients",
+    "bugLine": 3,
+    "explanation": "Missing None check: dict.get returns None when the key is absent, so a user with no contact record makes this subscript None, raising TypeError: 'NoneType' object is not subscriptable. The very next line guards name with a default, which shows the author knew the data was sparse.",
+    "source": "handwritten",
+    "active": true
+  }
+]
