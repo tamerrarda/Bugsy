@@ -19,6 +19,7 @@
  *     cannot be answered
  *   - one attempt per (challenge, mode)
  */
+import { LANGUAGES } from '../types'
 import type {
   AttemptResult,
   Challenge,
@@ -52,6 +53,36 @@ function toPublic(challenge: Challenge): PublicChallenge {
 
 export function lineCount(code: string): number {
   return code.split('\n').length
+}
+
+/**
+ * What the bundled guest pool can actually serve.
+ *
+ * The home screen builds its Practice filters from these when the player is a
+ * guest, instead of from the full LANGUAGES list. With five bundled snippets
+ * most of the language × difficulty matrix is empty, and a filter option that
+ * matches nothing dead-ends in "Bugsy has no snippets matching that filter." —
+ * the same rudeness TrackPicker exists to avoid for daily tracks. Signed-in
+ * players keep the full list; the server pool covers every language.
+ */
+export function guestLanguages(challenges: Challenge[] = CHALLENGES): Language[] {
+  const present = new Set(
+    challenges.filter((c) => c.active).map((c) => c.language),
+  )
+  return LANGUAGES.filter((language) => present.has(language))
+}
+
+/** Whether the guest pool holds at least one active snippet matching the filter. */
+export function guestHasPractice(
+  filters: PracticeFilters,
+  challenges: Challenge[] = CHALLENGES,
+): boolean {
+  return challenges.some(
+    (c) =>
+      c.active &&
+      (filters.language === undefined || c.language === filters.language) &&
+      (filters.difficulty === undefined || c.difficulty === filters.difficulty),
+  )
 }
 
 export interface LocalServerDeps {

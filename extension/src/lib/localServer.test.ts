@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import type { Challenge } from '../types'
-import type { BugsyApi } from './api'
-import { ServerError, createLocalServer } from './localServer'
+import type { BugsyApi, PracticeFilters } from './api'
+import { ServerError, createLocalServer, guestHasPractice, guestLanguages } from './localServer'
 import { NO_ANSWER, SERVE_TTL_MS } from './scoring'
 import { createMemoryStatsStore } from './storage'
 
@@ -185,6 +185,59 @@ describe('submitAttempt', () => {
     await expect(
       api.submitAttempt({ challengeId: CHALLENGE.id, mode: 'daily', clickedLine: 2 }),
     ).rejects.toThrow(/sign in/i)
+  })
+})
+
+describe('guest pool availability', () => {
+  // A pool shaped like the real one: a couple of languages, gaps in the
+  // difficulty matrix, and one retired snippet that must count for nothing.
+  const jsMedium = CHALLENGE // javascript, difficulty 2
+  const pyEasy: Challenge = {
+    ...CHALLENGE,
+    id: '33333333-3333-4333-8333-333333333333',
+    language: 'python',
+    difficulty: 1,
+  }
+  const rustRetired: Challenge = {
+    ...CHALLENGE,
+    id: '44444444-4444-4444-8444-444444444444',
+    language: 'rust',
+    active: false,
+  }
+  const pool = [pyEasy, jsMedium, rustRetired]
+
+  it('lists only languages the pool holds, in LANGUAGES order', () => {
+    // python is first in the pool but javascript comes first in LANGUAGES; the
+    // filter dropdown should follow the canonical order, not file order.
+    expect(guestLanguages(pool)).toEqual(['javascript', 'python'])
+  })
+
+  it('a retired snippet does not put its language on offer', () => {
+    expect(guestLanguages(pool)).not.toContain('rust')
+  })
+
+  const cases: { filters: PracticeFilters; expected: boolean }[] = [
+    { filters: {}, expected: true },
+    { filters: { language: 'javascript' }, expected: true },
+    { filters: { language: 'java' }, expected: false },
+    { filters: { language: 'rust' }, expected: false }, // exists but retired
+    { filters: { difficulty: 1 }, expected: true },
+    { filters: { difficulty: 3 }, expected: false },
+    { filters: { language: 'python', difficulty: 1 }, expected: true },
+    { filters: { language: 'python', difficulty: 2 }, expected: false },
+    { filters: { language: 'javascript', difficulty: 2 }, expected: true },
+  ]
+
+  for (const { filters, expected } of cases) {
+    it(`hasPractice(${JSON.stringify(filters)}) -> ${expected}`, () => {
+      expect(guestHasPractice(filters, pool)).toBe(expected)
+    })
+  }
+
+  it('the real bundled pool serves at least one language', () => {
+    // The seed script refuses to emit an empty guest pool; this catches the
+    // bundle and the seed rule drifting apart.
+    expect(guestLanguages().length).toBeGreaterThan(0)
   })
 })
 
