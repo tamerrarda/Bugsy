@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { LEADERBOARD_PERIODS, type LeaderboardPeriod, type LeaderboardRow } from '../types'
 import { getLeaderboard } from '../lib/serverApi'
 import { supabase } from '../lib/supabase'
@@ -40,15 +40,36 @@ export function Leaderboard({ username }: LeaderboardProps) {
   // own rows — the board would never move for anyone else's score, while looking
   // for all the world like it was live. The database broadcasts a contentless
   // ping instead (see the attempts_broadcast trigger), and we simply re-read.
+  const lastLoadRef = useRef(0)
+  const pendingRef = useRef<number | null>(null)
+
   useEffect(() => {
+    // The topic is public: anyone holding the anon key can broadcast to it, so
+    // the ping is treated as a hint, never a command. A trailing-edge throttle
+    // collapses any burst — a busy evening or a hostile client flooding the
+    // channel — into at most one refetch per window. The flood then costs its
+    // sender a websocket and costs every listener almost nothing.
+    const REFRESH_MIN_MS = 2500
+
     const channel = supabase
       .channel('leaderboard')
       .on('broadcast', { event: 'attempt' }, () => {
-        void load()
+        if (pendingRef.current !== null) return
+
+        const wait = Math.max(0, REFRESH_MIN_MS - (Date.now() - lastLoadRef.current))
+        pendingRef.current = window.setTimeout(() => {
+          pendingRef.current = null
+          lastLoadRef.current = Date.now()
+          void load()
+        }, wait)
       })
       .subscribe()
 
     return () => {
+      if (pendingRef.current !== null) {
+        window.clearTimeout(pendingRef.current)
+        pendingRef.current = null
+      }
       void supabase.removeChannel(channel)
     }
   }, [load])
