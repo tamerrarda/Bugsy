@@ -73,7 +73,7 @@ export function Profile({ profile, onShowAllBadges }: ProfileProps) {
   const myBadges = stats.badges.filter((b) => b.earned)
   const earned = myBadges.length
 
-  const shareUrl = `https://bugsy.dev/u/${profile.username}`
+  const shareUrl = 'https://chromewebstore.google.com/detail/opdoaenpojahgghdbkopnhmdfmliogeo'
   const shareText = `I've earned ${earned}/${stats.badges.length} Bugsy badges and a ${stats.dailyBest}-day debugging streak 🐛`
 
   return (

@@ -36,7 +36,10 @@ describe('buildShareText', () => {
       dailyStreak: 12,
     })
 
-    expect(text).toBe('Bugsy #47 [Rust] 🐛\n🟩🟩🟥  2/3\n🔥 12-day streak\nbugsy.dev')
+    expect(text).toBe(
+      'Bugsy #47 [Rust] 🐛\n🟩🟩🟥  2/3\n🔥 12-day streak\n' +
+        'https://chromewebstore.google.com/detail/opdoaenpojahgghdbkopnhmdfmliogeo',
+    )
   })
 
   it('renders a perfect day', () => {
@@ -55,7 +58,10 @@ describe('buildShareText', () => {
     const text = buildShareText({ day: EPOCH, language: 'csharp', results: [true, false, true], dailyStreak: 0 })
 
     expect(text).not.toContain('streak')
-    expect(text).toBe('Bugsy #1 [C#] 🐛\n🟩🟥🟩  2/3\nbugsy.dev')
+    expect(text).toBe(
+      'Bugsy #1 [C#] 🐛\n🟩🟥🟩  2/3\n' +
+        'https://chromewebstore.google.com/detail/opdoaenpojahgghdbkopnhmdfmliogeo',
+    )
   })
 
   it('never leaks which lines were the answer', () => {

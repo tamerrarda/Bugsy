@@ -7,7 +7,7 @@ import { LANGUAGE_LABEL, type Language } from '../types'
  *   Bugsy #47 [rust] 🐛
  *   🟩🟩🟥  2/3
  *   🔥 12-day streak
- *   bugsy.dev
+ *   https://chromewebstore.google.com/detail/opdoaenpojahgghdbkopnhmdfmliogeo
  *
  * The TRACK is named on the card, and that is not decoration. The daily is
  * per-language, so "2/3" only means something next to the language it was scored
@@ -18,7 +18,8 @@ import { LANGUAGE_LABEL, type Language } from '../types'
 /** Day 1. The puzzle number is the count of UTC days since this date. */
 export const EPOCH = '2026-07-13'
 
-const SITE = 'bugsy.dev'
+/** The install link a shared result points at — the published Web Store page. */
+const SITE = 'https://chromewebstore.google.com/detail/opdoaenpojahgghdbkopnhmdfmliogeo'
 const HIT = '🟩'
 const MISS = '🟥'
 
