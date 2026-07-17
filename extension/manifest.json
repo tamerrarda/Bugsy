@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Bugsy — Spot the Bug",
   "description": "Wordle for debugging. Three snippets a day, one bug each. Find it before the timer does.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA0579SlrNkY7+ByhtCHCeKYMATC8ZQsM93/+k8cw+w/iRCn+jhNQaNtbwBRAT1Klsk4KgHXUx3ny0i+PyZVQ4sPuVensfxMNtVM5UqGbblGWR9GVxKBaaCkfmlFtcuCI2T7KJh47mUMOxejPgaUdXJnMcLfLtU3ZV/jAF33vUijY9bl64U1btyoag/40HHCeyOzf/+gQEGNTyxDvFCxpSK200MSGWIluWF1vqAiGZu0kN+ux5z2Np8tBkDh2hvAVAIHbNYGgDzMAbYkWIRIKoY8ckard7HPwrlKLlB707cgq3f51X1QT5ZkEWJ27a5FBYg1/mugmZi/d2g8/F7MlYGQIDAQAB",
   "action": {
     "default_popup": "index.html",
@@ -24,7 +24,12 @@
     "48": "icons/icon-48.png",
     "128": "icons/icon-128.png"
   },
-  "permissions": ["storage", "alarms", "notifications", "identity"],
+  "permissions": [
+    "storage",
+    "alarms",
+    "notifications",
+    "identity"
+  ],
   "host_permissions": [
     "http://127.0.0.1:54321/*",
     "https://*.supabase.co/*"
